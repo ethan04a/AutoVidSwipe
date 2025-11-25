@@ -21,13 +21,15 @@ class SingletonScreenshot:
     def capture_screen(
             self,
             device,
-            save_dir: str = "screenshots"
+            save_dir: str = "screenshots",
+            img_name: str = None  # 新增：可选图片名称参数
     ) -> str:
         """
-        uiautomator2 截图并保存本地（带时间戳+分辨率验证）
+        uiautomator2 截图并保存本地（支持指定图片名+时间戳 fallback+分辨率验证）
 
         :param device: u2设备对象（uiautomator2.connect() 返回的实例）
         :param save_dir: 保存文件夹路径（默认：当前目录/screenshots）
+        :param img_name: 自定义图片名称（可选，不带后缀则自动补充 .png；未指定则用时间戳）
         :return: 截图完整保存路径
         """
         # 1. 创建保存文件夹（不存在则创建）
@@ -35,10 +37,18 @@ class SingletonScreenshot:
             os.makedirs(save_dir, exist_ok=True)
             logger.log(f"📂 文件夹不存在，已创建：{save_dir}")
 
-        # 2. 生成带时间戳的文件名（精确到秒，避免重复）
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        img_name = f"{timestamp}.png"
-        img_path = os.path.abspath(os.path.join(save_dir, img_name))  # 绝对路径
+        # 2. 生成图片名称（优先使用自定义名称，无则用时间戳）
+        if img_name:
+            # 处理后缀：如果不带 .png 则自动补充
+            if not img_name.endswith(".png"):
+                img_name += ".png"
+        else:
+            # 原有逻辑：时间戳命名（精确到秒，避免重复）
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            img_name = f"{timestamp}.png"
+
+        # 拼接完整保存路径（绝对路径）
+        img_path = os.path.abspath(os.path.join(save_dir, img_name))
 
         try:
             # 3. 调用u2设备截图并保存（默认无压缩）
@@ -62,7 +72,7 @@ class SingletonScreenshot:
 
         except Exception as e:
             logger.log(f"❌ 截图失败！错误信息：{str(e)}", file=sys.stderr)
-            raise  # 抛出异常，让调用方处理（或根据需求修改为返回None）
+            raise  # 抛出异常，让调用方处理
 
 
 # 提供全局便捷访问实例（简化调用）
