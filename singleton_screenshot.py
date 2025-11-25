@@ -61,9 +61,9 @@ class SingletonScreenshot:
 
             # 5. 日志输出（使用单例日志模块）
             logger.log("✅ 截图成功！")
-            logger.log(f"📁 保存路径：{img_path}")
-            logger.log(f"📊 手机分辨率：{phone_width}x{phone_height}")
-            logger.log(f"📊 截图分辨率：{img_width}x{img_height}")
+            # logger.log(f"📁 保存路径：{img_path}")
+            # logger.log(f"📊 手机分辨率：{phone_width}x{phone_height}")
+            # logger.log(f"📊 截图分辨率：{img_width}x{img_height}")
 
             # 6. 延迟3秒（保留原逻辑）
             time.sleep(3)

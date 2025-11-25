@@ -2,7 +2,11 @@
 from singleton_logger import logger
 import time
 import uiautomator2 as u2
-import subprocess
+from image_llm_client import call_qwen3_vl
+import time
+from PIL import Image
+import ast
+from singleton_screenshot import screenshoter
 
 
 class AutoVideoSwipter:
@@ -92,14 +96,61 @@ class AutoVideoSwipter:
         pass
         return True
 
-    def claim_treasure_box(self) -> bool:
+    def has_popup(self,device: u2.Device,popup_flag: str) -> bool:
+
+        img_path = screenshoter.capture_screen(device, "tmp", "tmp")
+
+        prompt = '''图中是否有"'''+popup_flag+'''"字式，如果有回答"Yes",如果没有回答"No",不要回到其它内容。'''
+        model = "qwen3-vl:4b-instruct"  # 默认4b-instruct 还有 qwen3-vl:4b   qwen3-vl:2b-instruct   qwen3-vl:latest
+        response = call_qwen3_vl(prompt, [img_path], model=model)
+
+
+        logger.log(f"🎁 执行判断弹窗操作："+popup_flag)
+        logger.log(popup_flag+":"+response)
+
+        if response.strip()== "Yes":
+            return True
+        else:
+            return False
+
+
+    def claim_treasure_box(self,device: u2.Device,flag_str:str) -> bool:
         """
         领取宝箱奖励
+        :param flag_str: 宝箱的标志
         :return: bool - 领取成功返回True，无宝箱/领取失败返回False
         """
-        logger.log(f"🎁 执行领取宝箱奖励操作")
-        # 空实现：后续可添加 查找宝箱按钮+点击领取 逻辑
-        pass
+
+        img_path = screenshoter.capture_screen(device, "tmp", "tmp")
+        #print(img_path)
+
+        prompt = '''图中是否有"'''+flag_str+'''"完全相同切连续的字符串，如果有，给出文字它所在像素坐标范围,格式"[x1,y1,x2,y2]"，注意截图的左上角为[0,0],分辨率：1200x2640,如果没有或者判断不出来回答"None",不要回答别的内容。'''
+        model = "qwen3-vl:4b-instruct"  # 默认4b-instruct 还有 qwen3-vl:4b   qwen3-vl:2b-instruct   qwen3-vl:latest
+        response = call_qwen3_vl(prompt, [img_path], model=model)
+
+        #print(response)
+        logger.log(f"🎁 执行领取宝箱奖励操作:" + flag_str)
+        logger.log(flag_str+":"+response)
+
+        if response=="None":
+            return False
+
+        result_list = ast.literal_eval(response)
+
+        #print(result_list)  # [1, 2, 3, 4]
+
+        # Image.open(img_path).crop(
+        #     (1200 * (result_list[0] / 1000.0), 2640 * (result_list[1] / 1000.0), 1200 * (result_list[2] / 1000.0),
+        #      2640 * (result_list[3] / 1000.0))).show()
+
+
+        x = int(1200 * ((result_list[0] + result_list[2]) / 1000.0)/2)
+        y = int(2640 * ((result_list[1] + result_list[3]) / 1000.0)/2)
+        #print(x,y)
+        device.click(x,y)
+
+
+
         return True
 
     def get_gold_count(self) -> int:

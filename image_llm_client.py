@@ -63,35 +63,3 @@ qwen3_vl_client = Qwen3VLClient()
 # 简化调用函数（直接使用单例）
 def call_qwen3_vl(prompt: str, image_paths: list[str]=None, model: str = None) -> str:
     return qwen3_vl_client.generate_response(prompt, image_paths, model)
-
-
-
-# # 1. 定义图片路径和文本提示
-# image_path = "C:/developer/pythonproj/AutoVidSwipe/screenshots/2025-11-25_03-24-07.png"  # 替换为你的图片绝对路径（Windows："C:\\Users\\xxx\\test.png"）
-# #prompt = '''图中顶部是否有"xxx金币"字样和"xxx元"字样，xxx是具体数字，如果没有回答或判断不出来回答"None"，如果有就回答"金币收益xxx金币;现金收益xxx元",这里的xxx是具体数字,不要回答别的内容。'''  # 你的文本指令
-# prompt = '''图中是否有"点可领710金币"字式，如果有，给出文字它所在像素坐标范围,格式"[x1,y1,x2,y2]"，注意截图的左上角为[0,0],分辨率：1200x2640,如果没有或者判断不出来回答"None",不要回答别的内容。'''
-# # 2. 工具函数：读取本地图片并转换为 Base64 编码（Ollama 要求无前缀）
-# def image_to_base64(image_path):
-#     if not os.path.exists(image_path):
-#         raise FileNotFoundError(f"图片路径不存在：{image_path}")
-#     # 读取图片二进制数据
-#     with open(image_path, "rb") as f:
-#         img_bytes = f.read()
-#     # 编码为 Base64 字符串（去掉前缀）
-#     return base64.b64encode(img_bytes).decode("utf-8")
-#
-# # 3. 生成 Base64 编码的图片
-# img_base64 = image_to_base64(image_path)
-#
-# # 4. 调用 Qwen3-VL 模型（核心：通过 images 参数传图片）
-# resp = ollama.generate(
-#     model="qwen3-vl:4b-instruct",  # 模型名（与你之前一致）
-#     prompt=prompt,            # 文本提示（描述你要模型做的事）
-#     images=[img_base64]       # 图片列表（支持多张，如 [img1, img2]）
-# ).response
-#
-# print("模型响应：")
-# print(resp)
-
-    # from PIL import Image
-    # Image.open("C:/developer/pythonproj/AutoVidSwipe/screenshots/2025-11-25_03-24-07.png").crop((1200*0.773, 2640*0.846,1200*0.950,2640*0.864)).show()
