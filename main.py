@@ -4,6 +4,58 @@ import uiautomator2 as u2
 from singleton_logger import logger
 from auto_video_swipter import video_swipter
 import time
+import threading
+import subprocess
+import re
+
+def get_adb_devices() -> list[str]:
+    """
+    调用 adb devices 命令，提取已连接设备的 IP:端口 字符串列表
+
+    返回值：
+        list[str]: 设备地址列表（格式如 ["192.168.31.55:41297", ...]），无设备时返回空列表
+    """
+    devices = []
+    try:
+        # 执行 adb devices 命令，捕获输出（忽略错误输出）
+        result = subprocess.run(
+            ["adb", "devices"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="ignore"
+        )
+
+        # 检查命令是否执行成功（返回码为0）
+        if result.returncode != 0:
+            return devices
+
+        # 按行分割输出内容
+        output_lines = result.stdout.strip().split("\n")
+
+        # 正则表达式：匹配 IP:端口 格式（支持IPv4地址和任意端口号）
+        device_pattern = re.compile(r"^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})\s+device$")
+
+        # 遍历输出行（跳过第一行标题）
+        for line in output_lines[1:]:
+            line = line.strip()
+            if not line:
+                continue  # 跳过空行
+
+            # 匹配设备地址和状态（只保留状态为 device 的设备）
+            match = device_pattern.match(line)
+            if match:
+                devices.append(match.group(1))
+
+    except FileNotFoundError:
+        # 处理 adb 命令未找到的情况
+        print("警告：未找到 adb 命令，请确保 adb 已添加到系统环境变量")
+    except Exception as e:
+        # 处理其他未知异常
+        print(f"获取设备列表失败：{str(e)}")
+
+    return devices
+
 
 ####----------------------------------------汽水音乐-----------------------------------------------
 def qisuiyinyue_kanguanggao(d:uiautomator2.Device):
@@ -95,9 +147,10 @@ def hongguoduanju_kuanju(d:uiautomator2.Device,max_count:int):
 
     count = 0
     while count < max_count:
-        d.swipe(500, 1500, 500, 100)
+        #d.swipe(500, 1500, 500, 100)
+        d.swipe_ext('up', 0.5)
         logger.log("已执行向上滑动")
-        time.sleep(18)
+        time.sleep(40)
         count += 1
         logger.log('完成次数：' + str(count))
 
@@ -150,36 +203,186 @@ def hongguoduanju_kuanguanggao(d:uiautomator2.Device):
             break
 
 
-
-
-
-
 def hongguoduanju(d:uiautomator2.Device):
 
     if video_swipter.start_app(d, 'com.phoenix.read'):  # 红果短剧
 
         time.sleep(10)
 
-        hongguoduanju_kuanju(d,10)
-        hongguoduanju_kuanguanggao(d)
+        hongguoduanju_kuanju(d,30)
+        #hongguoduanju_kuanguanggao(d)
 
         video_swipter.close_app(d, 'com.phoenix.read')
+
+####----------------------------------------快手极速版-----------------------------------------------
+def kuaisoujisuban_kanshipin(d:uiautomator2.Device,max_count:int):
+
+    d(text='首页').click()
+    logger.log('进入首页看视频')
+    time.sleep(5)
+
+    count = 0
+    while count < max_count:
+        #d.swipe(500, 1500, 500, 100)
+        d.swipe_ext('up', 0.5)
+        logger.log("已执行向上滑动")
+        time.sleep(40)
+        count += 1
+        logger.log('完成次数：' + str(count))
+
+def kuaisoujisuban(d:uiautomator2.Device):
+
+    d.press("volume_mute") #静音
+    time.sleep(4)
+
+    if video_swipter.start_app(d, 'com.kuaishou.nebula'):  # 红果短剧
+
+        time.sleep(10)
+
+        if d(text='同意并继续').exists():
+            d(text='同意并继续').click()
+            time.sleep(2)
+            logger.log('出现协议弹窗，已经点掉')
+
+        if d(text='允许').exists():
+            d(text='允许').click()
+            time.sleep(2)
+            logger.log('通知权限弹窗，已经点掉')
+
+
+        kuaisoujisuban_kanshipin(d,30)
+
+
+        video_swipter.close_app(d, 'com.kuaishou.nebula')
+
+####----------------------------------------河马剧场-----------------------------------------------
+def hemajuchang_kanshipin(d:uiautomator2.Device,max_count:int):
+
+    d(text='剧场').click()
+    logger.log('进入剧场看视频')
+    time.sleep(5)
+
+    d.click(d.info['displayWidth']/2, d.info['displayHeight']/2)
+    logger.log('选剧')
+    time.sleep(2)
+
+    count = 0
+    while count < max_count:
+        #d.swipe(500, 1500, 500, 100)
+        d.swipe_ext('up', 0.5)
+        logger.log("已执行向上滑动")
+        time.sleep(40)
+        count += 1
+        logger.log('完成次数：' + str(count))
+
+def hemajuchang(d:uiautomator2.Device):
+    if video_swipter.start_app(d, 'com.dz.hmjc'):  # 红果短剧
+
+        time.sleep(10)
+
+        hemajuchang_kanshipin(d,30)
+
+
+        video_swipter.close_app(d, 'com.dz.hmjc')
+
+####----------------------------------------番茄畅听-----------------------------------------------
+def fanqiechangting_kanshipin(d:uiautomator2.Device,max_count:int):
+
+    d(text='短剧').click()
+    logger.log('进入短剧看视频')
+    time.sleep(5)
+
+    d.click(0.254, 0.355)
+    logger.log('选剧')
+    time.sleep(2)
+
+    count = 0
+    while count < max_count:
+        #d.swipe(500, 1500, 500, 100)
+        d.swipe_ext('up', 0.5)
+        logger.log("已执行向上滑动")
+        time.sleep(40)
+        count += 1
+        logger.log('完成次数：' + str(count))
+
+def fanqiechangting(d:uiautomator2.Device):
+    if video_swipter.start_app(d, 'com.xs.fm'):  # 番茄畅听
+
+        time.sleep(10)
+
+        fanqiechangting_kanshipin(d,30)
+
+
+        video_swipter.close_app(d, 'com.xs.fm')
+
+####----------------------------------------西瓜视频-----------------------------------------------
+def xiguashipin_kanshipin(d:uiautomator2.Device,max_count:int):
+
+
+    if d(text='免费短剧').exists():
+        d(resourceId="com.ss.android.article.video:id/+", text='免费短剧').click()
+    else:
+        d(resourceId="com.ss.android.article.video:id/+", text="短剧").click()
+
+
+    logger.log('进入短剧看视频')
+    time.sleep(5)
+
+    count = 0
+    while count < max_count:
+        #d.swipe(500, 1500, 500, 100)
+        d.swipe_ext('up',0.5)
+        logger.log("已执行向上滑动")
+        time.sleep(40)
+        count += 1
+        logger.log('完成次数：' + str(count))
+
+def xiguashipin(d:uiautomator2.Device):
+    if video_swipter.start_app(d, 'com.ss.android.article.video'):  # 西瓜视频
+
+        time.sleep(10)
+
+        xiguashipin_kanshipin(d,30)
+
+
+        video_swipter.close_app(d, 'com.ss.android.article.video')
+
+
+def xishuashua(d:uiautomator2.Device):
+
+    kuaisoujisuban(d) #快手极速版
+
+    hemajuchang(d) #河马剧场
+
+    fanqiechangting(d) #番茄畅听
+
+    xiguashipin(d)  # 西瓜视频
+
+    qisuiyinyue(d) # 汽水音乐
+
+    hongguoduanju(d) #红果短剧
 
 
 
 if __name__ == "__main__":
 
-    logger.log('启动脚本')
-    d = u2.connect()
-    logger.log(d.info)
+    logger.log('启动脚本！')
 
-    #qisuiyinyue(d) #汽水音乐
-    #com.kuaishou.nebula 快手
-    #com.phoenix.read 红果短剧
-    for i in range(5):
-        hongguoduanju_kuanguanggao(d)
+    devices_list = get_adb_devices()
+    thread_list = []
 
-    print(d.app_current())
+    for device_name in devices_list:
+        d = u2.connect(device_name)
+        logger.log(d.info)
+        t = threading.Thread(target=xishuashua, args=(d,))
+        t.start()
+        thread_list.append(t)
+
+    for t in thread_list:
+        t.join()
+
+
+    print('脚本执行完成！')
 
 
 

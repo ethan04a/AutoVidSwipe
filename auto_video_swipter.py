@@ -48,11 +48,14 @@ class AutoVideoSwipter:
         :param app_package: APP包名，为空则关闭当前活跃APP
         :return: bool - 关闭成功返回True，失败返回False
         """
+
         device.app_stop(app_package)
-        time.sleep(2)
-        device.drag(500,2638,500,1500,duration=7)
-        time.sleep(2)
-        device.click(0.487, 0.903)
+        # time.sleep(2)
+        # device.drag(500,2638,500,1500,duration=7)
+        # time.sleep(2)
+        # device.click(0.487, 0.903)
+
+        #device.app_clear(app_package)
 
         logger.log(f"🔌 执行关闭APP操作，包名：{app_package or '当前活跃APP'}")
 
