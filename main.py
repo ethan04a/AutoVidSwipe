@@ -91,6 +91,15 @@ def qisuiyinyue_kanguanggao(d:uiautomator2.Device):
             d(text="坚持退出").click()
             logger.log('从逛街得金币界面返回')
 
+    if d.xpath('//*[@resource-id="com.luna.music:id/isq"]/android.widget.LinearLayout[1]').exists:
+
+        logger.log('进入异常界面')
+        d.xpath('//*[@resource-id="com.luna.music:id/isq"]/android.widget.LinearLayout[1]').click()
+        time.sleep(2)
+        logger.log('退出异常界面')
+
+
+
 
     if video_swipter.has_popup(d, "看广告膨胀领"):
         d.click(0.473, 0.687)
@@ -141,9 +150,13 @@ def qisuiyinyue(d:uiautomator2.Device):
 ####----------------------------------------红果短剧-----------------------------------------------
 def hongguoduanju_kuanju(d:uiautomator2.Device,max_count:int):
 
-    d(text='首页').click()
-    logger.log('进入首页看短剧')
+    d(text='剧场').click()
+    logger.log('进入短剧看视频')
     time.sleep(5)
+
+    d.click(0.254, 0.355)
+    logger.log('选剧')
+    time.sleep(2)
 
     count = 0
     while count < max_count:
@@ -358,9 +371,11 @@ def xishuashua(d:uiautomator2.Device):
 
     xiguashipin(d)  # 西瓜视频
 
-    qisuiyinyue(d) # 汽水音乐
+    if d.info['productName']=='MTN-AN00':
 
-    hongguoduanju(d) #红果短剧
+        qisuiyinyue(d) # 汽水音乐
+
+        hongguoduanju(d) #红果短剧
 
 
 
