@@ -58,6 +58,41 @@ def get_adb_devices() -> list[str]:
 
 
 ####----------------------------------------汽水音乐-----------------------------------------------
+def qisuiyinyue_qufanka(d:uiautomator2.Device): #翻卡游戏
+
+    if not video_swipter.has_popup(d,'翻卡赢金币'):
+        d.swipe_ext('up')
+        time.sleep(2)
+        print('没找到 翻卡赢金币游戏 向上翻')
+
+    if not video_swipter.has_popup(d, '去翻卡'):
+        print('没有找到去翻卡按钮')
+        return
+
+    if video_swipter.claim_treasure_box(d, "翻卡赢金币"):
+        time.sleep(2)
+        print('点击 翻卡赢金币')
+
+        flag_count = 0
+        while not video_swipter.has_popup(d, "直接领取"):
+
+            if video_swipter.claim_treasure_box(d,'广告翻'):
+                time.sleep(5)
+                while d(textContain='秒后可领奖励，关闭，按钮').exists():
+                    time.sleep(1)
+                if d(text="获得奖励，关闭，按钮").exists():
+                    d(text="获得奖励，关闭，按钮").click()
+                    time.sleep(2)
+            else:
+                flag_count +=1
+                print('异常计数器加1')
+                if flag_count>10:
+                    print('异常退出')
+                    break
+
+        video_swipter.claim_treasure_box(d,'直接领取')
+        print('翻卡牌游戏结束')
+
 def qisuiyinyue_kanguanggao(d:uiautomator2.Device):
     guanggao_flag = False
 
@@ -66,10 +101,13 @@ def qisuiyinyue_kanguanggao(d:uiautomator2.Device):
         guanggao_flag = True
 
 
-    if video_swipter.claim_treasure_box(d, '开宝箱得金币') == False:  #领取宝箱
+    if not video_swipter.claim_treasure_box(d, '开宝箱得金币'):  #领取宝箱
         logger.log('没发现宝箱')
 
-        if video_swipter.claim_treasure_box(d, '看广告赚金币') == False:
+        if not video_swipter.has_popup(d, "我的资产"):
+            d.swipe_ext('down')
+
+        if not video_swipter.claim_treasure_box(d, '看广告赚金币'):
             logger.log('看广告赚金币 失败')
         else:
             logger.log('成功点击看广告赚金币')
@@ -97,9 +135,6 @@ def qisuiyinyue_kanguanggao(d:uiautomator2.Device):
         d.xpath('//*[@resource-id="com.luna.music:id/isq"]/android.widget.LinearLayout[1]').click()
         time.sleep(2)
         logger.log('退出异常界面')
-
-
-
 
     if video_swipter.has_popup(d, "看广告膨胀领"):
         d.click(0.473, 0.687)
@@ -143,6 +178,7 @@ def qisuiyinyue(d:uiautomator2.Device):
 
         for i in range(5):
             qisuiyinyue_kanguanggao(d)
+            qisuiyinyue_qufanka(d)
 
         video_swipter.close_app(d, 'com.luna.music')
 
@@ -174,26 +210,27 @@ def hongguoduanju_kuanguanggao(d:uiautomator2.Device):
     logger.log('进入赚钱界面')
     time.sleep(5)
 
-    baoxiang = d.xpath('//*[@resource-id="com.phoenix.read:id/ase"]/android.widget.FrameLayout[1]/android.widget.ScrollView[2]/android.widget.HorizontalScrollView[1]/android.widget.LinearLayout[1]/android.view.ViewGroup[1]')
-    if baoxiang.exists and video_swipter.has_popup(d, '开宝箱得金币'):
-        baoxiang.click()
+    flag = False
+    if video_swipter.claim_treasure_box(d, '开宝箱得金币'):
         time.sleep(3)
         logger.log('点击宝箱')
         if video_swipter.has_popup(d, '点击看视频最高再领'):
             d.click(0.494, 0.608)
             time.sleep(2)
+            flag = True
             logger.log('点击看视频最高再领xxx金币按钮')
         else:
             return
     else:
-        d.xpath(
-            '//*[@resource-id="com.phoenix.read:id/ase"]/android.widget.FrameLayout[1]/android.widget.ScrollView[1]/android.widget.HorizontalScrollView[1]/android.widget.LinearLayout[1]/android.view.ViewGroup[3]/android.view.ViewGroup[2]/android.view.ViewGroup[1]/android.view.ViewGroup[2]/android.view.ViewGroup[1]/android.view.ViewGroup[1]').click()
-        time.sleep(2)
-        logger.log('点击 看视频赚海量金币')
+        if video_swipter.claim_treasure_box(d, '看视频赚海量金币'):
+            time.sleep(2)
+            logger.log('点击 看视频赚海量金币')
+            flag = True
 
-    while True:
+    flag_count = 0
+    while flag:
 
-        while video_swipter.has_popup(d, '领取成功') == False:
+        while not video_swipter.has_popup(d, '领取成功'):
             print('看广告中...')
             time.sleep(10)
 
@@ -201,19 +238,21 @@ def hongguoduanju_kuanguanggao(d:uiautomator2.Device):
         time.sleep(2)
         print('点击 右上角 领取成功标签')
 
-        elem_popu=d.xpath('//*[@resource-id="com.phoenix.read:id/cx4"]/android.widget.FrameLayout[1]/android.widget.FrameLayout[1]/android.widget.FrameLayout[1]/android.view.ViewGroup[2]')
-        if elem_popu.exists:
+        if video_swipter.has_popup(d, '领取奖励'):
             d.click(0.48, 0.549)
             time.sleep(2)
             print('点击 领取奖励按钮')
 
-        elem_popu=d.xpath(
-            '//*[@resource-id="com.phoenix.read:id/ase"]/android.widget.FrameLayout[1]/android.view.ViewGroup[1]/android.view.ViewGroup[2]')
-        if elem_popu.exists:
+        elif video_swipter.has_popup(d, '开心收下'):
             d.click(0.484, 0.625)
             time.sleep(2)
             print('点击 开心收下按钮')
             break
+
+        else:
+            flag_count +=1
+            if flag_count>10:
+                flag = False
 
 
 def hongguoduanju(d:uiautomator2.Device):
@@ -222,8 +261,9 @@ def hongguoduanju(d:uiautomator2.Device):
 
         time.sleep(10)
 
-        hongguoduanju_kuanju(d,30)
-        #hongguoduanju_kuanguanggao(d)
+        #hongguoduanju_kuanju(d,30)
+        for i in range(5):
+            hongguoduanju_kuanguanggao(d)
 
         video_swipter.close_app(d, 'com.phoenix.read')
 
@@ -305,7 +345,7 @@ def fanqiechangting_kanshipin(d:uiautomator2.Device,max_count:int):
     logger.log('进入短剧看视频')
     time.sleep(5)
 
-    d.click(0.254, 0.355)
+    d.click(0.254, 0.655)
     logger.log('选剧')
     time.sleep(2)
 
@@ -363,19 +403,18 @@ def xiguashipin(d:uiautomator2.Device):
 
 def xishuashua(d:uiautomator2.Device):
 
+
+    fanqiechangting(d) #番茄畅听
+
     kuaisoujisuban(d) #快手极速版
 
     hemajuchang(d) #河马剧场
 
-    fanqiechangting(d) #番茄畅听
-
     xiguashipin(d)  # 西瓜视频
 
-    if d.info['productName']=='MTN-AN00':
+    qisuiyinyue(d) # 汽水音乐
 
-        qisuiyinyue(d) # 汽水音乐
-
-        hongguoduanju(d) #红果短剧
+    hongguoduanju(d) #红果短剧
 
 
 
@@ -396,6 +435,8 @@ if __name__ == "__main__":
     for t in thread_list:
         t.join()
 
+    # d = u2.connect()
+    # print(d.info)
 
     print('脚本执行完成！')
 

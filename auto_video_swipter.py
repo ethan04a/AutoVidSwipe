@@ -32,6 +32,7 @@ class AutoVideoSwipter:
             return True
 
         app_obj = device.app_start(app_package,wait=True)
+        time.sleep(2)
 
         if device.app_current()['package'] == app_package:
             logger.log(device.app_current())
@@ -124,6 +125,9 @@ class AutoVideoSwipter:
         :return: bool - 领取成功返回True，无宝箱/领取失败返回False
         """
 
+        displayWidth=device.info['displayWidth']
+        displayHeight=device.info['displayHeight']
+
         img_path = screenshoter.capture_screen(device, "tmp", "tmp")
         #print(img_path)
 
@@ -147,8 +151,8 @@ class AutoVideoSwipter:
         #      2640 * (result_list[3] / 1000.0))).show()
 
 
-        x = int(1200 * ((result_list[0] + result_list[2]) / 1000.0)/2)
-        y = int(2640 * ((result_list[1] + result_list[3]) / 1000.0)/2)
+        x = int(displayWidth * ((result_list[0] + result_list[2]) / 1000.0)/2)
+        y = int(displayHeight * ((result_list[1] + result_list[3]) / 1000.0)/2)
         #print(x,y)
         device.click(x,y)
 
