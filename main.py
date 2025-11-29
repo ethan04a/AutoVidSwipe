@@ -65,30 +65,30 @@ def qisuiyinyue_qufanka(d:uiautomator2.Device): #翻卡游戏
         time.sleep(2)
         print('没找到 翻卡赢金币游戏 向上翻')
 
-    if not video_swipter.has_popup(d, '去翻卡'):
-        print('没有找到去翻卡按钮')
-        return
-
     if video_swipter.claim_treasure_box(d, "翻卡赢金币"):
         time.sleep(2)
         print('点击 翻卡赢金币')
 
-        flag_count = 0
-        while not video_swipter.has_popup(d, "直接领取"):
+        if d(resourceId="com.luna.music:id/navigation_tab_me").exists():
+            print('翻卡赢金币时间没到 点击无效 退出函数')
+            return
 
-            if video_swipter.claim_treasure_box(d,'广告翻'):
-                time.sleep(5)
-                while d(textContain='秒后可领奖励，关闭，按钮').exists():
-                    time.sleep(1)
-                if d(text="获得奖励，关闭，按钮").exists():
-                    d(text="获得奖励，关闭，按钮").click()
-                    time.sleep(2)
+        flag_count = 0
+        while video_swipter.claim_treasure_box(d, "广告翻"):
+
+            time.sleep(5)
+
+            if flag_count>10:
+               print('异常退出')
+               break
+
+            while d(textContain='秒后可领奖励，关闭，按钮').exists():
+                time.sleep(1)
+            if d(text="获得奖励，关闭，按钮").exists():
+                d(text="获得奖励，关闭，按钮").click()
+                time.sleep(2)
             else:
-                flag_count +=1
-                print('异常计数器加1')
-                if flag_count>10:
-                    print('异常退出')
-                    break
+                flag_count+=1
 
         video_swipter.claim_treasure_box(d,'直接领取')
         print('翻卡牌游戏结束')
@@ -140,6 +140,11 @@ def qisuiyinyue_kanguanggao(d:uiautomator2.Device):
         d.click(0.473, 0.687)
         guanggao_flag = True
 
+    if d(resourceId="com.luna.music:id/c4p").exists():
+        d(resourceId="com.luna.music:id/bq5").click()
+        time.sleep(2)
+        logger.log('退出直播界面')
+
     time.sleep(2)
 
     while guanggao_flag:
@@ -157,7 +162,7 @@ def qisuiyinyue_kanguanggao(d:uiautomator2.Device):
             logger.log('点击 领取奖励')
             time.sleep(2)
 
-        if d(text='广告').exists() == False:
+        if not d(text='广告').exists():
             d.click(0.473, 0.552)
             print('广告模式退出')
             break
@@ -172,8 +177,8 @@ def qisuiyinyue(d:uiautomator2.Device):
         target_element = d.xpath(
             '//*[@resource-id="com.luna.music:id/navigation_tab_commerce_coin"]/android.view.ViewGroup[1]/android.widget.LinearLayout[1]')
         target_element.click()
-
         logger.log('进入福利界面')
+
         time.sleep(5)
 
         for i in range(5):
@@ -261,13 +266,82 @@ def hongguoduanju(d:uiautomator2.Device):
 
         time.sleep(10)
 
-        #hongguoduanju_kuanju(d,30)
-        for i in range(5):
-            hongguoduanju_kuanguanggao(d)
+        hongguoduanju_kuanju(d,30)
+        # for i in range(5):
+        #     hongguoduanju_kuanguanggao(d)
 
         video_swipter.close_app(d, 'com.phoenix.read')
 
 ####----------------------------------------快手极速版-----------------------------------------------
+def kuaisoujisuban_kanguanggao(d:uiautomator2.Device):
+
+    d(text='去赚钱').click()
+    time.sleep(2)
+    print('进入到赚钱界面')
+
+    if d(textStartsWith='点可领').exists():
+
+        d(textStartsWith='点可领').click()
+        time.sleep(2)
+        print('点击宝箱')
+
+        if d(textStartsWith='去看广告得最高').exists():
+            d(textStartsWith='去看广告得最高').click()
+            time.sleep(2)
+            print('点击 去看广告得最高xxx金币 按钮')
+
+    elif d(text="看广告得金币").exists():
+
+        d(text="看广告得金币").click()
+        time.sleep(2)
+        print('点击 看广告得金币')
+
+        if d(text="去微信邀请好友").exists():
+            d.click((0.922, 0.173))
+            time.sleep(2)
+            print('点掉 去微信邀请好友')
+
+    else:
+        print('界面异常')
+        return
+
+    while not d(resourceId="android:id/text1", text="去赚钱").exists(): #判断条件是是否回到赚钱界面
+
+        while d(textContains='后可领取').exists():
+            time.sleep(1)
+            print('看广告中...')
+
+        if d(textContains='已成功领取').exists():
+            d(textContains='已成功领取').click()
+            time.sleep(2)
+
+        if d(text="领取奖励").exists():
+            d(text="领取奖励").click()
+            time.sleep(2)
+
+        if d(textContains='领取额外').exists():
+            d(textContains='领取额外').click()
+            time.sleep(2)
+            d(description="close_view").click()
+            time.sleep(2)
+            print('关闭 领取额外奖励 弹窗')
+
+        if d(text='更多直播').exists() or d(text='卖货频道').exists():
+            time.sleep(35)
+            d.swipe(0, 600, 1000, 600)
+            print('退出直播')
+
+            if d(text='开心收下').exists():
+                d(text='开心收下').click()
+                time.sleep(2)
+                d.swipe(0, 600, 1000, 600)
+                print('开心收下')
+
+            time.sleep(3)
+            if d(text='换一个广告').exists():
+                d(text='换一个广告').click()
+                print('换一个广告')
+
 def kuaisoujisuban_kanshipin(d:uiautomator2.Device,max_count:int):
 
     d(text='首页').click()
@@ -304,6 +378,9 @@ def kuaisoujisuban(d:uiautomator2.Device):
 
 
         kuaisoujisuban_kanshipin(d,30)
+
+        for i in range(10):
+            kuaisoujisuban_kanguanggao(d)
 
 
         video_swipter.close_app(d, 'com.kuaishou.nebula')
@@ -403,6 +480,7 @@ def xiguashipin(d:uiautomator2.Device):
 
 def xishuashua(d:uiautomator2.Device):
 
+    qisuiyinyue(d) # 汽水音乐
 
     fanqiechangting(d) #番茄畅听
 
@@ -412,10 +490,7 @@ def xishuashua(d:uiautomator2.Device):
 
     xiguashipin(d)  # 西瓜视频
 
-    qisuiyinyue(d) # 汽水音乐
-
     hongguoduanju(d) #红果短剧
-
 
 
 if __name__ == "__main__":
