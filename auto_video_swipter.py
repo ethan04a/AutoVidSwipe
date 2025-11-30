@@ -32,16 +32,10 @@ class AutoVideoSwipter:
             return True
 
         app_obj = device.app_start(app_package,wait=True)
-        time.sleep(2)
-
-        if device.app_current()['package'] == app_package:
-            logger.log(device.app_current())
-            logger.log(f"📱 执行启动APP操作，包名：{app_package or '默认APP'}")
-            return True
-        else:
-            logger.log(app_package + '打开失败')
-            return False
-
+        time.sleep(10)
+        logger.log(device.app_current())
+        logger.log(f"📱 执行启动APP操作，包名：{app_package or '默认APP'}")
+        return True
 
     def close_app(self,device: u2.Device,app_package: str = "") -> bool:
         """

@@ -8,6 +8,10 @@ import threading
 import subprocess
 import re
 
+from singleton_screenshot import screenshoter
+import datetime
+import sys
+
 def get_adb_devices() -> list[str]:
     """
     调用 adb devices 命令，提取已连接设备的 IP:端口 字符串列表
@@ -74,7 +78,11 @@ def qisuiyinyue_qufanka(d:uiautomator2.Device): #翻卡游戏
             return
 
         flag_count = 0
-        while video_swipter.claim_treasure_box(d, "广告翻"):
+        while (video_swipter.has_popup(d, "看广告翻十位卡")
+               or video_swipter.has_popup(d, "看广告翻百位卡")
+               or video_swipter.has_popup(d, "看1个广告翻千位卡")):
+
+            d.click(0.495, 0.524)
 
             time.sleep(5)
 
@@ -82,7 +90,7 @@ def qisuiyinyue_qufanka(d:uiautomator2.Device): #翻卡游戏
                print('异常退出')
                break
 
-            while d(textContain='秒后可领奖励，关闭，按钮').exists():
+            while d(textContains='秒后可领奖励，关闭，按钮').exists():
                 time.sleep(1)
             if d(text="获得奖励，关闭，按钮").exists():
                 d(text="获得奖励，关闭，按钮").click()
@@ -152,8 +160,13 @@ def qisuiyinyue_kanguanggao(d:uiautomator2.Device):
             logger.log('看广告中...')
             time.sleep(1)
 
-        if d(textContains="继续观看").exists():
-            d(textContains='继续观看').click()
+        if d(text="继续观看，关闭，按钮").exists():
+            d(text='继续观看，关闭，按钮').click()
+            logger.log('点击 继续观看广告')
+            time.sleep(2)
+
+        if d(text="继续观看").exists():
+            d(text='继续观看').click()
             logger.log('点击 继续观看广告')
             time.sleep(2)
 
@@ -183,7 +196,8 @@ def qisuiyinyue(d:uiautomator2.Device):
 
         for i in range(5):
             qisuiyinyue_kanguanggao(d)
-            qisuiyinyue_qufanka(d)
+
+        qisuiyinyue_qufanka(d)
 
         video_swipter.close_app(d, 'com.luna.music')
 
@@ -279,7 +293,12 @@ def kuaisoujisuban_kanguanggao(d:uiautomator2.Device):
     time.sleep(2)
     print('进入到赚钱界面')
 
-    if d(textStartsWith='点可领').exists():
+    if d(textStartsWith='去看广告得最高').exists():
+        d(textStartsWith='去看广告得最高').click()
+        time.sleep(2)
+        print('点击 去看广告得最高xxx金币 按钮')
+
+    elif d(textStartsWith='点可领').exists():
 
         d(textStartsWith='点可领').click()
         time.sleep(2)
@@ -309,6 +328,9 @@ def kuaisoujisuban_kanguanggao(d:uiautomator2.Device):
 
         while d(textContains='后可领取').exists():
             time.sleep(1)
+            if d(resourceId="com.kuaishou.nebula:id/left_btn").exists():
+                d(resourceId="com.kuaishou.nebula:id/left_btn").click()
+                time.sleep(2)
             print('看广告中...')
 
         if d(textContains='已成功领取').exists():
@@ -322,9 +344,14 @@ def kuaisoujisuban_kanguanggao(d:uiautomator2.Device):
         if d(textContains='领取额外').exists():
             d(textContains='领取额外').click()
             time.sleep(2)
-            d(description="close_view").click()
-            time.sleep(2)
+            if d(description="close_view").exists():
+                d(description="close_view").click()
+                time.sleep(2)
             print('关闭 领取额外奖励 弹窗')
+
+        if d(resourceId="com.kuaishou.nebula:id/left_btn").exists():
+            d(resourceId="com.kuaishou.nebula:id/left_btn").click()
+            time.sleep(2)
 
         if d(text='更多直播').exists() or d(text='卖货频道').exists():
             time.sleep(35)
@@ -358,9 +385,6 @@ def kuaisoujisuban_kanshipin(d:uiautomator2.Device,max_count:int):
         logger.log('完成次数：' + str(count))
 
 def kuaisoujisuban(d:uiautomator2.Device):
-
-    d.press("volume_mute") #静音
-    time.sleep(4)
 
     if video_swipter.start_app(d, 'com.kuaishou.nebula'):  # 红果短剧
 
@@ -410,7 +434,7 @@ def hemajuchang(d:uiautomator2.Device):
 
         time.sleep(10)
 
-        hemajuchang_kanshipin(d,30)
+        hemajuchang_kanshipin(d,20)
 
 
         video_swipter.close_app(d, 'com.dz.hmjc')
@@ -480,20 +504,94 @@ def xiguashipin(d:uiautomator2.Device):
 
 def xishuashua(d:uiautomator2.Device):
 
-    qisuiyinyue(d) # 汽水音乐
+    d.screen_on()
+    time.sleep(2)
 
-    fanqiechangting(d) #番茄畅听
+    if d.app_current()['package']=='com.ximalaya.ting.android':
+        d.swipe_ext('right',0.8)
+        time.sleep(2)
+        print('喜马拉雅正在运行')
 
-    kuaisoujisuban(d) #快手极速版
+    d.swipe_ext('up',0.5)
+    time.sleep(2)
 
-    hemajuchang(d) #河马剧场
+    d.press('volume_up')
+    time.sleep(2)
+    d.press("volume_mute") #静音
+    time.sleep(4)
 
-    xiguashipin(d)  # 西瓜视频
+    for i in range(2):
+        try:
+            kuaisoujisuban(d) #快手极速版
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
 
-    hongguoduanju(d) #红果短剧
+        try:
+            hemajuchang(d) #河马剧场
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            xiguashipin(d)  # 西瓜视频
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            hongguoduanju(d) #红果短剧
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            qisuiyinyue(d) # 汽水音乐
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            fanqiechangting(d) #番茄畅听
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        d.app_stop_all()
+        time.sleep(2)
+        d.drag(500,2638,500,1500,duration=7)
+        time.sleep(2)
+        d.click(0.487, 0.903)
+        time.sleep(2)
+        d.screen_off()
+
+def force_shutdown_windows():
+    try:
+        # 直接执行强制关机命令，无任何提示和确认
+        subprocess.run(
+            ["shutdown", "/p"],
+            check=True,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"关机命令执行失败：{e.stderr}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"未知错误：{str(e)}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
+
+
+    target_time = datetime.datetime.strptime("2025-12-1 00:03:00", "%Y-%m-%d %H:%M:%S")
+    now = datetime.datetime.now()
+    time_diff = (target_time - now).total_seconds()
+    print(f"距离任务执行还有：{time_diff:.0f}秒（{time_diff/3600:.1f}小时）")
+    time.sleep(time_diff)
 
     logger.log('启动脚本！')
 
@@ -514,6 +612,7 @@ if __name__ == "__main__":
     # print(d.info)
 
     print('脚本执行完成！')
+    force_shutdown_windows()
 
 
 
