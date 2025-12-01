@@ -175,6 +175,12 @@ def qisuiyinyue_kanguanggao(d:uiautomator2.Device):
             logger.log('点击 领取奖励')
             time.sleep(2)
 
+        if d(resourceId="com.luna.music:id/b+").exists():
+            d(resourceId="com.luna.music:id/b+").click()
+            logger.log('点击 关闭遮蔽弹窗')
+            time.sleep(2)
+
+
         if not d(text='广告').exists():
             d.click(0.473, 0.552)
             print('广告模式退出')
@@ -194,7 +200,7 @@ def qisuiyinyue(d:uiautomator2.Device):
 
         time.sleep(5)
 
-        for i in range(5):
+        for i in range(3):
             qisuiyinyue_kanguanggao(d)
 
         qisuiyinyue_qufanka(d)
@@ -280,7 +286,7 @@ def hongguoduanju(d:uiautomator2.Device):
 
         time.sleep(10)
 
-        hongguoduanju_kuanju(d,30)
+        hongguoduanju_kuanju(d,40)
         # for i in range(5):
         #     hongguoduanju_kuanguanggao(d)
 
@@ -342,11 +348,12 @@ def kuaisoujisuban_kanguanggao(d:uiautomator2.Device):
             time.sleep(2)
 
         if d(textContains='领取额外').exists():
-            d(textContains='领取额外').click()
+
             time.sleep(2)
             if d(description="close_view").exists():
                 d(description="close_view").click()
                 time.sleep(2)
+
             print('关闭 领取额外奖励 弹窗')
 
         if d(resourceId="com.kuaishou.nebula:id/left_btn").exists():
@@ -403,7 +410,7 @@ def kuaisoujisuban(d:uiautomator2.Device):
 
         kuaisoujisuban_kanshipin(d,30)
 
-        for i in range(10):
+        for i in range(30):
             kuaisoujisuban_kanguanggao(d)
 
 
@@ -500,7 +507,106 @@ def xiguashipin(d:uiautomator2.Device):
 
 
         video_swipter.close_app(d, 'com.ss.android.article.video')
+#-----------------------------------------抖音极速版--------------------------------------------------
+def douyinjisuban_kanguanggao(d:uiautomator2.Device):
+    if d(resourceId="com.ss.android.ugc.aweme.lite:id/kah").exists():
+        d(resourceId="com.ss.android.ugc.aweme.lite:id/kah").click()
+        time.sleep(2)
+        print('去赚钱')
 
+    d.swipe_ext('down',1)
+    time.sleep(2)
+    print('向下翻')
+
+    flag = False
+    if d(description="开宝箱得金币").exists():
+        d(description="开宝箱得金币").click()
+        time.sleep(2)
+        print('开宝箱')
+        flag = True
+    else:
+        for i in range(10):
+            if not d(description="每5分钟完成一次广告任务，单日最高可赚20000金币").exists():
+                d.swipe_ext('up',0.1)
+                time.sleep(1)
+            else:
+                d(description="每5分钟完成一次广告任务，单日最高可赚20000金币").click()
+                time.sleep(2)
+                flag = True
+
+
+    if d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/a+-"]/android.widget.FrameLayout[1]/android.widget.ScrollView[1]/android.widget.HorizontalScrollView[1]/android.widget.LinearLayout[1]/android.view.ViewGroup[2]/android.view.ViewGroup[3]').exists:
+        d.xpath(
+            '//*[@resource-id="com.ss.android.ugc.aweme.lite:id/a+-"]/android.widget.FrameLayout[1]/android.widget.ScrollView[1]/android.widget.HorizontalScrollView[1]/android.widget.LinearLayout[1]/android.view.ViewGroup[2]/android.view.ViewGroup[3]').click()
+        time.sleep(2)
+        print('看广告')
+
+    while flag:
+
+        if d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/a+-"]/android.widget.FrameLayout[1]/android.view.ViewGroup[4]/android.view.ViewGroup[1]/android.view.ViewGroup[1]').exists:
+            print('未正常进入广告模式')
+            break
+
+        while not d(description="领取成功，关闭，按钮").exists():
+            time.sleep(1)
+            print('看广告中...')
+            if d(resourceId="com.ss.android.ugc.aweme.lite:id/opf").exists():
+                d.click(0.064, 0.09)
+                time.sleep(1)
+
+        time.sleep(2)
+
+        if d(description="领取成功，关闭，按钮").exists():
+            d(description="领取成功，关闭，按钮").click()
+            time.sleep(2)
+            print('点击 领取奖励按钮')
+
+        if d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/ee_"]/android.widget.FrameLayout[1]/android.widget.FrameLayout[1]/android.widget.FrameLayout[1]/android.view.ViewGroup[2]').exists:
+            d.click(0.53, 0.559)
+            time.sleep(2)
+            print('点击 领取奖励 弹窗按钮')
+
+        if d(description="金币").exists():
+            d.click(0.796, 0.358)
+            time.sleep(2)
+            print('退出广告模式')
+            break
+
+    if d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/a+-"]/android.widget.FrameLayout[1]/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.widget.ImageView[1]').exists:
+        d.xpath(
+            '//*[@resource-id="com.ss.android.ugc.aweme.lite:id/a+-"]/android.widget.FrameLayout[1]/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.widget.ImageView[1]').click()
+        time.sleep(2)
+        print('退出赚钱模式')
+
+
+def douyinjisuban_kushipin(d:uiautomator2.Device,max_count:int):
+
+    if d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/root_view"]/android.widget.FrameLayout[1]').exists:
+        d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/root_view"]/android.widget.FrameLayout[1]').click()
+        logger.log('进入看视频')
+        time.sleep(5)
+
+    count = 0
+    while count < max_count:
+        #d.swipe(500, 1500, 500, 100)
+        d.swipe_ext('up',0.5)
+        logger.log("已执行向上滑动")
+        time.sleep(20)
+        count += 1
+        logger.log('完成次数：' + str(count))
+
+def douyinjisuban(d:uiautomator2.Device):
+
+    if video_swipter.start_app(d, 'com.ss.android.ugc.aweme.lite'):  # 红果短剧
+
+        time.sleep(10)
+
+        douyinjisuban_kanguanggao(d)
+
+        douyinjisuban_kushipin(d,100)
+
+
+        video_swipter.close_app(d, 'com.ss.android.ugc.aweme.lite')
 
 def xishuashua(d:uiautomator2.Device):
 
@@ -521,6 +627,25 @@ def xishuashua(d:uiautomator2.Device):
     time.sleep(4)
 
     for i in range(2):
+
+        try:
+            douyinjisuban(d) #抖音极速版
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            qisuiyinyue(d) # 汽水音乐
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            fanqiechangting(d) #番茄畅听
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
         try:
             kuaisoujisuban(d) #快手极速版
         except Exception as e:
@@ -545,17 +670,6 @@ def xishuashua(d:uiautomator2.Device):
             print('发生异常:'+str(e))
             print(screenshoter.capture_screen(d))
 
-        try:
-            qisuiyinyue(d) # 汽水音乐
-        except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
-
-        try:
-            fanqiechangting(d) #番茄畅听
-        except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
 
         d.app_stop_all()
         time.sleep(2)
@@ -587,11 +701,11 @@ def force_shutdown_windows():
 if __name__ == "__main__":
 
 
-    target_time = datetime.datetime.strptime("2025-12-1 00:03:00", "%Y-%m-%d %H:%M:%S")
-    now = datetime.datetime.now()
-    time_diff = (target_time - now).total_seconds()
-    print(f"距离任务执行还有：{time_diff:.0f}秒（{time_diff/3600:.1f}小时）")
-    time.sleep(time_diff)
+    # target_time = datetime.datetime.strptime("2025-12-1 03:00:00", "%Y-%m-%d %H:%M:%S")
+    # now = datetime.datetime.now()
+    # time_diff = (target_time - now).total_seconds()
+    # print(f"距离任务执行还有：{time_diff:.0f}秒（{time_diff/3600:.1f}小时）")
+    # time.sleep(time_diff)
 
     logger.log('启动脚本！')
 
@@ -612,7 +726,7 @@ if __name__ == "__main__":
     # print(d.info)
 
     print('脚本执行完成！')
-    force_shutdown_windows()
+    #force_shutdown_windows()
 
 
 
