@@ -509,8 +509,9 @@ def xiguashipin(d:uiautomator2.Device):
         video_swipter.close_app(d, 'com.ss.android.article.video')
 #-----------------------------------------抖音极速版--------------------------------------------------
 def douyinjisuban_kanguanggao(d:uiautomator2.Device):
-    if d(resourceId="com.ss.android.ugc.aweme.lite:id/kah").exists():
-        d(resourceId="com.ss.android.ugc.aweme.lite:id/kah").click()
+
+    if d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/root_view"]/android.widget.FrameLayout[4]').exists:
+        d.click(0.49, 0.964)
         time.sleep(2)
         print('去赚钱')
 
@@ -535,33 +536,33 @@ def douyinjisuban_kanguanggao(d:uiautomator2.Device):
                 flag = True
 
 
-    if d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/a+-"]/android.widget.FrameLayout[1]/android.widget.ScrollView[1]/android.widget.HorizontalScrollView[1]/android.widget.LinearLayout[1]/android.view.ViewGroup[2]/android.view.ViewGroup[3]').exists:
-        d.xpath(
-            '//*[@resource-id="com.ss.android.ugc.aweme.lite:id/a+-"]/android.widget.FrameLayout[1]/android.widget.ScrollView[1]/android.widget.HorizontalScrollView[1]/android.widget.LinearLayout[1]/android.view.ViewGroup[2]/android.view.ViewGroup[3]').click()
+    if d(description="金币").exists():
+        d.click(0.53, 0.559)
         time.sleep(2)
         print('看广告')
 
     while flag:
 
-        if d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/a+-"]/android.widget.FrameLayout[1]/android.view.ViewGroup[4]/android.view.ViewGroup[1]/android.view.ViewGroup[1]').exists:
+        if d(description="更多").exists():
             print('未正常进入广告模式')
             break
 
         while not d(description="领取成功，关闭，按钮").exists():
             time.sleep(1)
             print('看广告中...')
-            if d(resourceId="com.ss.android.ugc.aweme.lite:id/opf").exists():
-                d.click(0.064, 0.09)
-                time.sleep(1)
+            if d(resourceId="com.ss.android.ugc.aweme.lite:id/tv_title").exists():
+                d.click(0.05, 0.079)
+                time.sleep(2)
+                print('退出 应用外联广告页')
 
         time.sleep(2)
 
         if d(description="领取成功，关闭，按钮").exists():
             d(description="领取成功，关闭，按钮").click()
-            time.sleep(2)
+            time.sleep(3)
             print('点击 领取奖励按钮')
 
-        if d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/ee_"]/android.widget.FrameLayout[1]/android.widget.FrameLayout[1]/android.widget.FrameLayout[1]/android.view.ViewGroup[2]').exists:
+        if video_swipter.has_popup(d,'再看一个视频额外获得'):
             d.click(0.53, 0.559)
             time.sleep(2)
             print('点击 领取奖励 弹窗按钮')
@@ -572,11 +573,9 @@ def douyinjisuban_kanguanggao(d:uiautomator2.Device):
             print('退出广告模式')
             break
 
-    if d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/a+-"]/android.widget.FrameLayout[1]/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.widget.ImageView[1]').exists:
-        d.xpath(
-            '//*[@resource-id="com.ss.android.ugc.aweme.lite:id/a+-"]/android.widget.FrameLayout[1]/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.widget.ImageView[1]').click()
-        time.sleep(2)
-        print('退出赚钱模式')
+    d.swipe_ext('right',0.7)
+    time.sleep(2)
+    print('退出赚钱模式')
 
 
 def douyinjisuban_kushipin(d:uiautomator2.Device,max_count:int):
@@ -597,34 +596,79 @@ def douyinjisuban_kushipin(d:uiautomator2.Device,max_count:int):
 
 def douyinjisuban(d:uiautomator2.Device):
 
-    if video_swipter.start_app(d, 'com.ss.android.ugc.aweme.lite'):  # 红果短剧
+    if video_swipter.start_app(d, 'com.ss.android.ugc.aweme.lite'):  # 抖音极速版
 
         time.sleep(10)
 
-        douyinjisuban_kanguanggao(d)
+        douyinjisuban_kushipin(d,50)  #抖音刷视频
 
-        douyinjisuban_kushipin(d,100)
+        douyinjisuban_kanguanggao(d) #抖音看广告
 
 
         video_swipter.close_app(d, 'com.ss.android.ugc.aweme.lite')
+#-----------------------------------------悟空浏览器--------------------------------------------------
+def wukongliulanqi_kushipin(d:uiautomator2.Device,max_count:int):
+
+    if d(text='视频').exists:
+        d(text='视频').click()
+        logger.log('进入看视频')
+        time.sleep(5)
+
+        if d(description="短剧").exists:
+            d(description="短剧").click()
+            logger.log('进入看短剧')
+            time.sleep(5)
+
+    count = 0
+    while count < max_count:
+        #d.swipe(500, 1500, 500, 100)
+        d.swipe_ext('up',0.5)
+        logger.log("已执行向上滑动")
+        time.sleep(40)
+
+        if count>=2:
+            if d(resourceId="com.cat.readall:id/gh5").exists:
+                d(resourceId="com.cat.readall:id/gh5").click()
+                logger.log('进入看短剧模式')
+                time.sleep(2)
+
+        count += 1
+        logger.log('完成次数：' + str(count))
+
+    if d(resourceId="com.cat.readall:id/dms").exists():
+        d(resourceId="com.cat.readall:id/dms").click()
+        time.sleep(2)
+        print('退出看短剧模式')
+
+
+def wukongliulanqi(d:uiautomator2.Device):
+    if video_swipter.start_app(d, 'com.cat.readall'):  # 悟空浏览器
+
+        time.sleep(10)
+
+        wukongliulanqi_kushipin(d,50)
+
+
+        video_swipter.close_app(d, 'com.cat.readall')
+
 
 def xishuashua(d:uiautomator2.Device):
 
-    d.screen_on()
-    time.sleep(2)
-
-    if d.app_current()['package']=='com.ximalaya.ting.android':
-        d.swipe_ext('right',0.8)
-        time.sleep(2)
-        print('喜马拉雅正在运行')
-
-    d.swipe_ext('up',0.5)
-    time.sleep(2)
-
-    d.press('volume_up')
-    time.sleep(2)
-    d.press("volume_mute") #静音
-    time.sleep(4)
+    # d.screen_on()
+    # time.sleep(2)
+    #
+    # if d.app_current()['package']=='com.ximalaya.ting.android':
+    #     d.swipe_ext('right',0.8)
+    #     time.sleep(2)
+    #     print('喜马拉雅正在运行')
+    #
+    # d.swipe_ext('up',0.5)
+    # time.sleep(2)
+    #
+    # d.press('volume_up')
+    # time.sleep(2)
+    # d.press("volume_mute") #静音
+    # time.sleep(4)
 
     for i in range(2):
 
@@ -666,6 +710,12 @@ def xishuashua(d:uiautomator2.Device):
 
         try:
             hongguoduanju(d) #红果短剧
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            wukongliulanqi(d) #悟空浏览器
         except Exception as e:
             print('发生异常:'+str(e))
             print(screenshoter.capture_screen(d))
