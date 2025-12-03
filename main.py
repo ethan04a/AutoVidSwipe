@@ -626,7 +626,7 @@ def wukongliulanqi_kushipin(d:uiautomator2.Device,max_count:int):
         logger.log("已执行向上滑动")
         time.sleep(40)
 
-        if count>=2:
+        if count==2:
             if d(resourceId="com.cat.readall:id/gh5").exists:
                 d(resourceId="com.cat.readall:id/gh5").click()
                 logger.log('进入看短剧模式')
@@ -650,6 +650,46 @@ def wukongliulanqi(d:uiautomator2.Device):
 
 
         video_swipter.close_app(d, 'com.cat.readall')
+#------------------------------------番茄免费小说----------------------------------------------------
+def fanqiemianfeixiaosuo_duxiaosuo(d:uiautomator2.Device,max_count:int):
+
+    if d(text='书架').exists:
+        d(text='书架').click()
+        logger.log('进入书架频')
+        time.sleep(5)
+
+        d.click(0.158, 0.243)
+        time.sleep(2)
+
+    count = 0
+    while count < max_count:
+        #d.swipe(500, 1500, 500, 100)
+        d.swipe_ext('left',0.5)
+        logger.log("已执行左滑动")
+        time.sleep(20)
+
+        count += 1
+        logger.log('完成次数：' + str(count))
+
+    d.swipe_ext('left')
+    d.swipe_ext('left')
+    print('退出看短剧模式')
+
+
+
+def fanqiemianfeixiaosuo(d:uiautomator2.Device):
+
+    print(d.app_current())
+
+    if video_swipter.start_app(d, 'com.dragon.read'):  # 悟空浏览器
+
+        time.sleep(10)
+
+        fanqiemianfeixiaosuo_duxiaosuo(d,50)
+
+
+        video_swipter.close_app(d, 'com.dragon.read')
+
 
 
 def xishuashua(d:uiautomator2.Device):
@@ -671,6 +711,18 @@ def xishuashua(d:uiautomator2.Device):
     # time.sleep(4)
 
     for i in range(2):
+
+        try:
+            wukongliulanqi(d) #悟空浏览器
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            fanqiemianfeixiaosuo(d) #番茄免费小说
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
 
         try:
             douyinjisuban(d) #抖音极速版
@@ -714,11 +766,7 @@ def xishuashua(d:uiautomator2.Device):
             print('发生异常:'+str(e))
             print(screenshoter.capture_screen(d))
 
-        try:
-            wukongliulanqi(d) #悟空浏览器
-        except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
+
 
 
         d.app_stop_all()
@@ -759,21 +807,21 @@ if __name__ == "__main__":
 
     logger.log('启动脚本！')
 
-    # devices_list = get_adb_devices()
-    # thread_list = []
-    #
-    # for device_name in devices_list:
-    #     d = u2.connect(device_name)
-    #     logger.log(d.info)
-    #     t = threading.Thread(target=xishuashua, args=(d,))
-    #     t.start()
-    #     thread_list.append(t)
-    #
-    # for t in thread_list:
-    #     t.join()
+    devices_list = get_adb_devices()
+    thread_list = []
 
-    d = u2.connect()
-    print(d.info)
+    for device_name in devices_list:
+        d = u2.connect(device_name)
+        logger.log(d.info)
+        t = threading.Thread(target=xishuashua, args=(d,))
+        t.start()
+        thread_list.append(t)
+
+    for t in thread_list:
+        t.join()
+
+    # d = u2.connect()
+    # print(d.info)
 
     #河马剧场  到赚钱界面  连续签到得金币
     #d.click(0.498, 0.668) #立即签到按钮
