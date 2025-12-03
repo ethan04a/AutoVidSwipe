@@ -387,7 +387,7 @@ def kuaisoujisuban_kanshipin(d:uiautomator2.Device,max_count:int):
         #d.swipe(500, 1500, 500, 100)
         d.swipe_ext('up', 0.5)
         logger.log("已执行向上滑动")
-        time.sleep(40)
+        time.sleep(20)
         count += 1
         logger.log('完成次数：' + str(count))
 
@@ -759,21 +759,129 @@ if __name__ == "__main__":
 
     logger.log('启动脚本！')
 
-    devices_list = get_adb_devices()
-    thread_list = []
+    # devices_list = get_adb_devices()
+    # thread_list = []
+    #
+    # for device_name in devices_list:
+    #     d = u2.connect(device_name)
+    #     logger.log(d.info)
+    #     t = threading.Thread(target=xishuashua, args=(d,))
+    #     t.start()
+    #     thread_list.append(t)
+    #
+    # for t in thread_list:
+    #     t.join()
 
-    for device_name in devices_list:
-        d = u2.connect(device_name)
-        logger.log(d.info)
-        t = threading.Thread(target=xishuashua, args=(d,))
-        t.start()
-        thread_list.append(t)
+    d = u2.connect()
+    print(d.info)
 
-    for t in thread_list:
-        t.join()
+    #河马剧场  到赚钱界面  连续签到得金币
+    #d.click(0.498, 0.668) #立即签到按钮
+    #d.click(0.498,0.668) #看小视频最高再领xxx金币 按钮
+    #d.click(0.858, 0.205) #弹窗左上角关闭图标
 
-    # d = u2.connect()
-    # print(d.info)
+    #番茄畅听 一进界面 昨日收益弹窗  昨日受益超过99%用户弹窗
+    #d(text='放弃奖励，不再提醒').click() #放弃奖励不再提醒
+    #去 领现金 的界面 -> 今日签到领
+    #d.click(0.265, 0.641) #立即签到 按钮 过两秒以后再点关闭弹窗按钮
+    #d.click(0.487, 0.756) #弹窗关闭按钮
+
+    #西瓜视频
+    #赚界面 弹窗 评价并签到
+    #d.click(0.487, 0.599) #评价并签到 按钮
+    #过两秒
+    #d.click(0.498, 0.732) #关闭弹窗按钮
+    #弹窗 获得开宝箱奖励
+    #d.click(0.48, 0.698) #开心收下按钮
+    #弹窗 恭喜获得预约金币
+    #d.click(0.487, 0.801) #关闭弹窗
+
+    #汽水音乐
+    #开通会员畅听千万曲库 弹窗 一打开软件就有
+    #d.click(0.897, 0.4) #关闭弹窗
+    #恭喜获得VIP听歌时常
+    # 狠心离开位置
+    #d.click(0.494, 0.642)
+    # 去到福利界面 弹出明日签到+
+    #d.click(0.494, 0.692) #关闭弹窗
+
+    #快手极速版
+    # if d(text='邀请2个新用户必得').exists:
+    #     d.click(0.491, 0.701)
+    #到 去赚钱界面 弹窗 连续签到
+    #d.click(0.236, 0.665) #直接领金币按钮
+    # 弹出去看视频弹窗
+    #d.click(0.915, 0.157) #关闭弹窗
+
+    #红果免费短剧
+    #到赚钱界面 弹窗 今日签到领
+    #d.click(0.491, 0.636) #立即签到 按钮
+    #两秒以后
+    #d.click(0.494, 0.761) #关闭弹窗
+
+    #抖音极速版
+    #到赚钱按钮
+    # 弹窗 连续签到赚大钱
+    #d.click(0.484, 0.605) #签到领
+    # 两秒以后
+    #d.click(0.798, 0.331) #关闭弹窗位置
+    # 两秒以后
+    # 立即签到领 弹窗
+    #d.click(0.491, 0.889) #立即签到领 按钮位置
+    #d.click(0.929, 0.288) #关闭按钮
+    #马上打开 弹窗
+    #d.click(0.505, 0.828)#关闭弹窗
+
+    #悟空浏览器
+    # 去赚钱界面
+    # 今日签到领弹窗
+    # d.click(0.303, 0.698) #立即领取按钮
+    # 两秒以后
+    # d.click(0.869, 0.312) #关闭弹窗
+
+    #番茄免费小说
+    #一进软件 就有 立即领取弹窗
+    # d.click(0.494, 0.631) #立即领取 按钮
+    # time.sleep(2)
+    # d.click(0.491, 0.777) #关闭弹窗
+
+    #今日头条极速版
+    #一进软件 弹窗 恭喜获得惊喜奖励
+    #d.click(0.491, 0.729) #关闭弹窗
+    #受益快报 弹窗
+    #d(text='不再提示').click() #点击不再提示
+    #恭喜获得新人福利弹窗
+    #d.click(0.491, 0.759) #关闭弹窗
+    #到任务界面
+    #恭喜你获得弹窗
+    #d.click(0.487, 0.588) #点击立即领取按钮
+    #d.click(0.498, 0.613) #点击开心收下按钮
+    #d.click(0.049, 0.073) #天天预约领金币界面 ，左上角返回
+    #恭喜你获得弹窗
+    #d.click(0.491, 0.721) #关闭弹窗
+    #每日答题赚金币弹窗
+    #d.click(0.498, 0.758) #关闭弹窗
+
+    #今日头条
+    #一进软件 弹窗 恭喜获得惊喜奖励
+    #d.click(0.491, 0.729) #关闭弹窗
+    #任务界面 今日签到得
+    #d.click(0.314, 0.637) #直接领取按钮
+    #d.click(0.491, 0.759) #关闭弹窗
+    #立即预约弹窗
+    #d.click(0.491, 0.777) #关闭弹窗
+    #恭喜获得惊喜奖励
+    #d.click(0.498, 0.762) #关闭弹窗
+
+    #百度极速版
+    #一进软件 去阅读赚赚更多
+    #d.click(0.773, 0.415) #关闭弹窗
+    #专属现金福利弹窗
+    #d.click(0.848, 0.267) #关闭弹窗
+    #直接领取弹窗
+    #d.click(0.282, 0.724) #直接领取 按钮
+    #d.click(0.855, 0.179) #关闭弹窗
+
 
     print('脚本执行完成！')
     #force_shutdown_windows()
