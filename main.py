@@ -679,7 +679,6 @@ def fanqiemianfeixiaosuo_duxiaosuo(d:uiautomator2.Device,max_count:int):
 
 def fanqiemianfeixiaosuo(d:uiautomator2.Device):
 
-    print(d.app_current())
 
     if video_swipter.start_app(d, 'com.dragon.read'):  # 悟空浏览器
 
@@ -689,6 +688,50 @@ def fanqiemianfeixiaosuo(d:uiautomator2.Device):
 
 
         video_swipter.close_app(d, 'com.dragon.read')
+
+#-----------------------------------------百度极速版-----------------------------------------------------------
+def baidujisuban_kanshipin(d:uiautomator2.Device,max_count:int):
+
+    if d(text='短剧').exists:
+        d(text='短剧').click()
+        logger.log('进入看短剧')
+        time.sleep(5)
+
+        if d.xpath('//*[@resource-id="com.baidu.searchbox.lite:id/video_flow_cmp_list"]/android.widget.FrameLayout[1]/android.widget.FrameLayout[1]/android.widget.RelativeLayout[1]/android.widget.FrameLayout[1]').exists:
+            d.xpath(
+                '//*[@resource-id="com.baidu.searchbox.lite:id/video_flow_cmp_list"]/android.widget.FrameLayout[1]/android.widget.FrameLayout[1]/android.widget.RelativeLayout[1]/android.widget.FrameLayout[1]').click()
+            time.sleep(2)
+
+    count = 0
+    while count < max_count:
+        #d.swipe(500, 1500, 500, 100)
+        d.swipe_ext('up',0.8)
+        logger.log("已执行上滑动")
+        time.sleep(20)
+
+        count += 1
+        logger.log('完成次数：' + str(count))
+
+    d.swipe_ext('right')
+    time.sleep(2)
+
+    if d(text='百度').exists:
+        d(text='百度').click()
+        logger.log('回到首页')
+        time.sleep(2)
+
+
+def baidujisuban(d:uiautomator2.Device):
+
+    print(d.app_current())
+
+    if video_swipter.start_app(d, 'com.baidu.searchbox.lite'):  #百度极速版
+
+        baidujisuban_kanshipin(d,50)
+
+
+        video_swipter.close_app(d, 'com.baidu.searchbox.lite')  #百度极速版
+
 
 
 
@@ -713,7 +756,31 @@ def xishuashua(d:uiautomator2.Device):
     for i in range(2):
 
         try:
-            wukongliulanqi(d) #悟空浏览器
+            hemajuchang(d) #河马剧场
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            fanqiechangting(d) #番茄畅听
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            xiguashipin(d)  # 西瓜视频
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            baidujisuban(d) #百度极速版
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
+
+        try:
+            kuaisoujisuban(d) #快手极速版
         except Exception as e:
             print('发生异常:'+str(e))
             print(screenshoter.capture_screen(d))
@@ -737,37 +804,16 @@ def xishuashua(d:uiautomator2.Device):
             print(screenshoter.capture_screen(d))
 
         try:
-            fanqiechangting(d) #番茄畅听
-        except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
-
-        try:
-            kuaisoujisuban(d) #快手极速版
-        except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
-
-        try:
-            hemajuchang(d) #河马剧场
-        except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
-
-        try:
-            xiguashipin(d)  # 西瓜视频
-        except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
-
-        try:
             hongguoduanju(d) #红果短剧
         except Exception as e:
             print('发生异常:'+str(e))
             print(screenshoter.capture_screen(d))
 
-
-
+        try:
+            wukongliulanqi(d) #悟空浏览器
+        except Exception as e:
+            print('发生异常:'+str(e))
+            print(screenshoter.capture_screen(d))
 
         d.app_stop_all()
         time.sleep(2)
