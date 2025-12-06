@@ -53,10 +53,10 @@ def get_adb_devices() -> list[str]:
 
     except FileNotFoundError:
         # 处理 adb 命令未找到的情况
-        print("警告：未找到 adb 命令，请确保 adb 已添加到系统环境变量")
+        logger.log("警告：未找到 adb 命令，请确保 adb 已添加到系统环境变量")
     except Exception as e:
         # 处理其他未知异常
-        print(f"获取设备列表失败：{str(e)}")
+        logger.log(f"获取设备列表失败：{str(e)}")
 
     return devices
 
@@ -67,14 +67,14 @@ def qisuiyinyue_qufanka(d:uiautomator2.Device): #翻卡游戏
     if not video_swipter.has_popup(d,'翻卡赢金币'):
         d.swipe_ext('up')
         time.sleep(2)
-        print('没找到 翻卡赢金币游戏 向上翻')
+        logger.log('没找到 翻卡赢金币游戏 向上翻')
 
     if video_swipter.claim_treasure_box(d, "翻卡赢金币"):
         time.sleep(2)
-        print('点击 翻卡赢金币')
+        logger.log('点击 翻卡赢金币')
 
         if d(resourceId="com.luna.music:id/navigation_tab_me").exists():
-            print('翻卡赢金币时间没到 点击无效 退出函数')
+            logger.log('翻卡赢金币时间没到 点击无效 退出函数')
             return
 
         flag_count = 0
@@ -87,7 +87,7 @@ def qisuiyinyue_qufanka(d:uiautomator2.Device): #翻卡游戏
             time.sleep(5)
 
             if flag_count>10:
-               print('异常退出')
+               logger.log('异常退出')
                break
 
             while d(textContains='秒后可领奖励，关闭，按钮').exists():
@@ -99,7 +99,7 @@ def qisuiyinyue_qufanka(d:uiautomator2.Device): #翻卡游戏
                 flag_count+=1
 
         video_swipter.claim_treasure_box(d,'直接领取')
-        print('翻卡牌游戏结束')
+        logger.log('翻卡牌游戏结束')
 
 def qisuiyinyue_kanguanggao(d:uiautomator2.Device):
     guanggao_flag = False
@@ -183,7 +183,7 @@ def qisuiyinyue_kanguanggao(d:uiautomator2.Device):
 
         if not d(text='广告').exists():
             d.click(0.473, 0.552)
-            print('广告模式退出')
+            logger.log('广告模式退出')
             break
 
 
@@ -193,12 +193,28 @@ def qisuiyinyue(d:uiautomator2.Device):
 
         time.sleep(10)
 
+        # 汽水音乐
+        # 开通会员畅听千万曲库 弹窗 一打开软件就有
+        if video_swipter.has_popup('开通会员畅听千万曲库'):
+            d.click(0.897, 0.4) #关闭弹窗
+            time.sleep(2)
+            logger.log('开通会员畅听千万曲库')
+
+        # 恭喜获得VIP听歌时常
+        if video_swipter.has_popup('恭喜获得VIP听歌时长'):
+            d.click(0.494, 0.642) # 狠心离开位置
+            time.sleep(2)
+            logger.log('恭喜获得VIP听歌时长')
+
         target_element = d.xpath(
             '//*[@resource-id="com.luna.music:id/navigation_tab_commerce_coin"]/android.view.ViewGroup[1]/android.widget.LinearLayout[1]')
         target_element.click()
         logger.log('进入福利界面')
 
+
+
         time.sleep(5)
+
 
         for i in range(3):
             qisuiyinyue_kanguanggao(d)
@@ -256,22 +272,22 @@ def hongguoduanju_kuanguanggao(d:uiautomator2.Device):
     while flag:
 
         while not video_swipter.has_popup(d, '领取成功'):
-            print('看广告中...')
+            logger.log('看广告中...')
             time.sleep(10)
 
         d.click(0.908, 0.065)
         time.sleep(2)
-        print('点击 右上角 领取成功标签')
+        logger.log('点击 右上角 领取成功标签')
 
         if video_swipter.has_popup(d, '领取奖励'):
             d.click(0.48, 0.549)
             time.sleep(2)
-            print('点击 领取奖励按钮')
+            logger.log('点击 领取奖励按钮')
 
         elif video_swipter.has_popup(d, '开心收下'):
             d.click(0.484, 0.625)
             time.sleep(2)
-            print('点击 开心收下按钮')
+            logger.log('点击 开心收下按钮')
             break
 
         else:
@@ -287,6 +303,13 @@ def hongguoduanju(d:uiautomator2.Device):
         time.sleep(10)
 
         hongguoduanju_kuanju(d,40)
+
+        # 红果免费短剧
+        # 到赚钱界面 弹窗 今日签到领
+        # d.click(0.491, 0.636) #立即签到 按钮
+        # 两秒以后
+        # d.click(0.494, 0.761) #关闭弹窗
+
         # for i in range(5):
         #     hongguoduanju_kuanguanggao(d)
 
@@ -297,37 +320,47 @@ def kuaisoujisuban_kanguanggao(d:uiautomator2.Device):
 
     d(text='去赚钱').click()
     time.sleep(2)
-    print('进入到赚钱界面')
+    logger.log('进入到赚钱界面')
+
+    # 到 去赚钱界面 弹窗 连续签到
+    if video_swipter.has_popup('连续签到'):
+        d.click(0.236, 0.665) #直接领金币按钮
+        time.sleep(3)
+        logger.log('点击 直接领金币')
+        # 弹出去看视频弹窗
+        d.click(0.915, 0.157) #关闭弹窗
+        time.sleep(3)
+        logger.log('点击 关闭弹窗')
 
     if d(textStartsWith='去看广告得最高').exists():
         d(textStartsWith='去看广告得最高').click()
         time.sleep(2)
-        print('点击 去看广告得最高xxx金币 按钮')
+        logger.log('点击 去看广告得最高xxx金币 按钮')
 
     elif d(textStartsWith='点可领').exists():
 
         d(textStartsWith='点可领').click()
         time.sleep(2)
-        print('点击宝箱')
+        logger.log('点击宝箱')
 
         if d(textStartsWith='去看广告得最高').exists():
             d(textStartsWith='去看广告得最高').click()
             time.sleep(2)
-            print('点击 去看广告得最高xxx金币 按钮')
+            logger.log('点击 去看广告得最高xxx金币 按钮')
 
     elif d(text="看广告得金币").exists():
 
         d(text="看广告得金币").click()
         time.sleep(2)
-        print('点击 看广告得金币')
+        logger.log('点击 看广告得金币')
 
         if d(text="去微信邀请好友").exists():
             d.click((0.922, 0.173))
             time.sleep(2)
-            print('点掉 去微信邀请好友')
+            logger.log('点掉 去微信邀请好友')
 
     else:
-        print('界面异常')
+        logger.log('界面异常')
         return
 
     while not d(resourceId="android:id/text1", text="去赚钱").exists(): #判断条件是是否回到赚钱界面
@@ -337,7 +370,7 @@ def kuaisoujisuban_kanguanggao(d:uiautomator2.Device):
             if d(resourceId="com.kuaishou.nebula:id/left_btn").exists():
                 d(resourceId="com.kuaishou.nebula:id/left_btn").click()
                 time.sleep(2)
-            print('看广告中...')
+            logger.log('看广告中...')
 
         if d(textContains='已成功领取').exists():
             d(textContains='已成功领取').click()
@@ -354,7 +387,7 @@ def kuaisoujisuban_kanguanggao(d:uiautomator2.Device):
                 d(description="close_view").click()
                 time.sleep(2)
 
-            print('关闭 领取额外奖励 弹窗')
+            logger.log('关闭 领取额外奖励 弹窗')
 
         if d(resourceId="com.kuaishou.nebula:id/left_btn").exists():
             d(resourceId="com.kuaishou.nebula:id/left_btn").click()
@@ -363,18 +396,18 @@ def kuaisoujisuban_kanguanggao(d:uiautomator2.Device):
         if d(text='更多直播').exists() or d(text='卖货频道').exists():
             time.sleep(35)
             d.swipe(0, 600, 1000, 600)
-            print('退出直播')
+            logger.log('退出直播')
 
             if d(text='开心收下').exists():
                 d(text='开心收下').click()
                 time.sleep(2)
                 d.swipe(0, 600, 1000, 600)
-                print('开心收下')
+                logger.log('开心收下')
 
             time.sleep(3)
             if d(text='换一个广告').exists():
                 d(text='换一个广告').click()
-                print('换一个广告')
+                logger.log('换一个广告')
 
 def kuaisoujisuban_kanshipin(d:uiautomator2.Device,max_count:int):
 
@@ -406,6 +439,11 @@ def kuaisoujisuban(d:uiautomator2.Device):
             d(text='允许').click()
             time.sleep(2)
             logger.log('通知权限弹窗，已经点掉')
+
+        # 快手极速版
+        if d(text='邀请2个新用户必得').exists:
+            d.click(0.491, 0.701)
+
 
 
         kuaisoujisuban_kanshipin(d,30)
@@ -441,6 +479,11 @@ def hemajuchang(d:uiautomator2.Device):
 
         time.sleep(10)
 
+        # 河马剧场  到赚钱界面  连续签到得金币
+        # d.click(0.498, 0.668) #立即签到按钮
+        # d.click(0.498,0.668) #看小视频最高再领xxx金币 按钮
+        # d.click(0.858, 0.205) #弹窗左上角关闭图标
+
         hemajuchang_kanshipin(d,20)
 
 
@@ -470,6 +513,16 @@ def fanqiechangting(d:uiautomator2.Device):
     if video_swipter.start_app(d, 'com.xs.fm'):  # 番茄畅听
 
         time.sleep(10)
+
+        # 番茄畅听 一进界面 昨日收益弹窗  昨日受益超过99%用户弹窗
+        if video_swipter.has_popup('昨日受益超过'):
+            d(text='放弃奖励，不再提醒').click() #放弃奖励不再提醒
+            time.sleep(2)
+            logger.log('点掉 昨日受益超过99%用户弹窗')
+
+        # 去 领现金 的界面 -> 今日签到领
+        # d.click(0.265, 0.641) #立即签到 按钮 过两秒以后再点关闭弹窗按钮
+        # d.click(0.487, 0.756) #弹窗关闭按钮
 
         fanqiechangting_kanshipin(d,30)
 
@@ -503,6 +556,16 @@ def xiguashipin(d:uiautomator2.Device):
 
         time.sleep(10)
 
+        # 西瓜视频
+        # 赚界面 弹窗 评价并签到
+        # d.click(0.487, 0.599) #评价并签到 按钮
+        # 过两秒
+        # d.click(0.498, 0.732) #关闭弹窗按钮
+        # 弹窗 获得开宝箱奖励
+        # d.click(0.48, 0.698) #开心收下按钮
+        # 弹窗 恭喜获得预约金币
+        # d.click(0.487, 0.801) #关闭弹窗
+
         xiguashipin_kanshipin(d,30)
 
 
@@ -513,17 +576,17 @@ def douyinjisuban_kanguanggao(d:uiautomator2.Device):
     if d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/root_view"]/android.widget.FrameLayout[4]').exists:
         d.click(0.49, 0.964)
         time.sleep(2)
-        print('去赚钱')
+        logger.log('去赚钱')
 
     d.swipe_ext('down',1)
     time.sleep(2)
-    print('向下翻')
+    logger.log('向下翻')
 
     flag = False
     if d(description="开宝箱得金币").exists():
         d(description="开宝箱得金币").click()
         time.sleep(2)
-        print('开宝箱')
+        logger.log('开宝箱')
         flag = True
     else:
         for i in range(10):
@@ -539,43 +602,43 @@ def douyinjisuban_kanguanggao(d:uiautomator2.Device):
     if d(description="金币").exists():
         d.click(0.53, 0.559)
         time.sleep(2)
-        print('看广告')
+        logger.log('看广告')
 
     while flag:
 
         if d(description="更多").exists():
-            print('未正常进入广告模式')
+            logger.log('未正常进入广告模式')
             break
 
         while not d(description="领取成功，关闭，按钮").exists():
             time.sleep(1)
-            print('看广告中...')
+            logger.log('看广告中...')
             if d(resourceId="com.ss.android.ugc.aweme.lite:id/tv_title").exists():
                 d.click(0.05, 0.079)
                 time.sleep(2)
-                print('退出 应用外联广告页')
+                logger.log('退出 应用外联广告页')
 
         time.sleep(2)
 
         if d(description="领取成功，关闭，按钮").exists():
             d(description="领取成功，关闭，按钮").click()
             time.sleep(3)
-            print('点击 领取奖励按钮')
+            logger.log('点击 领取奖励按钮')
 
         if video_swipter.has_popup(d,'再看一个视频额外获得'):
             d.click(0.53, 0.559)
             time.sleep(2)
-            print('点击 领取奖励 弹窗按钮')
+            logger.log('点击 领取奖励 弹窗按钮')
 
         if d(description="金币").exists():
             d.click(0.796, 0.358)
             time.sleep(2)
-            print('退出广告模式')
+            logger.log('退出广告模式')
             break
 
     d.swipe_ext('right',0.7)
     time.sleep(2)
-    print('退出赚钱模式')
+    logger.log('退出赚钱模式')
 
 
 def douyinjisuban_kushipin(d:uiautomator2.Device,max_count:int):
@@ -599,6 +662,28 @@ def douyinjisuban(d:uiautomator2.Device):
     if video_swipter.start_app(d, 'com.ss.android.ugc.aweme.lite'):  # 抖音极速版
 
         time.sleep(10)
+
+        # 抖音极速版
+        # 到赚钱按钮
+        # 弹窗 连续签到赚大钱
+        if video_swipter.has_popup('连续签到赚大钱'):
+            d.click(0.484, 0.605)  # 签到领
+            time.sleep(2)
+            d.click(0.798, 0.331)  # 关闭弹窗位置
+            time.sleep(2)
+            logger.log('连续签到赚大钱')
+
+        if video_swipter.has_popup('立即签到领'):
+            d.click(0.491, 0.889) #立即签到领 按钮位置
+            time.sleep(2)
+            d.click(0.929, 0.288)  # 关闭按钮
+            logger.log('立即签到领')
+
+        if video_swipter.has_popup('马上打开'):
+            d.click(0.505, 0.828)  # 关闭弹窗
+            time.sleep(2)
+            logger.log('马上打开')
+
 
         douyinjisuban_kushipin(d,50)  #抖音刷视频
 
@@ -638,13 +723,19 @@ def wukongliulanqi_kushipin(d:uiautomator2.Device,max_count:int):
     if d(resourceId="com.cat.readall:id/dms").exists():
         d(resourceId="com.cat.readall:id/dms").click()
         time.sleep(2)
-        print('退出看短剧模式')
+        logger.log('退出看短剧模式')
 
 
 def wukongliulanqi(d:uiautomator2.Device):
     if video_swipter.start_app(d, 'com.cat.readall'):  # 悟空浏览器
 
         time.sleep(10)
+        # 悟空浏览器
+        # 去赚钱界面
+        # 今日签到领弹窗
+        # d.click(0.303, 0.698) #立即领取按钮
+        # 两秒以后
+        # d.click(0.869, 0.312) #关闭弹窗
 
         wukongliulanqi_kushipin(d,50)
 
@@ -673,7 +764,7 @@ def fanqiemianfeixiaosuo_duxiaosuo(d:uiautomator2.Device,max_count:int):
 
     d.swipe_ext('left')
     d.swipe_ext('left')
-    print('退出看短剧模式')
+    logger.log('退出看短剧模式')
 
 
 
@@ -683,6 +774,15 @@ def fanqiemianfeixiaosuo(d:uiautomator2.Device):
     if video_swipter.start_app(d, 'com.dragon.read'):  # 悟空浏览器
 
         time.sleep(10)
+        # 番茄免费小说
+        # 一进软件 就有 立即领取弹窗
+        if video_swipter.has_popup('立即领取'):
+            d.click(0.494, 0.631) #立即领取 按钮
+            time.sleep(3)
+            logger.log('立即领取')
+            d.click(0.491, 0.777) #关闭弹窗
+            time.sleep(2)
+            logger.log('关闭弹窗')
 
         fanqiemianfeixiaosuo_duxiaosuo(d,50)
 
@@ -723,12 +823,32 @@ def baidujisuban_kanshipin(d:uiautomator2.Device,max_count:int):
 
 def baidujisuban(d:uiautomator2.Device):
 
-    print(d.app_current())
+    logger.log(d.app_current())
 
     if video_swipter.start_app(d, 'com.baidu.searchbox.lite'):  #百度极速版
 
-        baidujisuban_kanshipin(d,50)
+        # 百度极速版
+        # 一进软件 去阅读赚赚更多
+        if video_swipter.has_popup('去阅读赚赚更多'):
+            d.click(0.773, 0.415) #关闭弹窗
+            time.sleep(2)
+            logger.log('点掉 去阅读赚赚更多')
 
+        # 专属现金福利弹窗
+        if video_swipter.has_popup('专属现金福'):
+            d.click(0.848, 0.267) #关闭弹窗
+            time.sleep(2)
+            logger.log('点掉 专属现金福')
+
+        # 直接领取弹窗
+        if video_swipter.has_popup('直接领取'):
+            d.click(0.282, 0.724) #直接领取 按钮
+            time.sleep(2)
+            d.click(0.855, 0.179)  # 关闭弹窗
+            time.sleep(2)
+            logger.log('点掉 专属现金福')
+
+        baidujisuban_kanshipin(d,50)
 
         video_swipter.close_app(d, 'com.baidu.searchbox.lite')  #百度极速版
 
@@ -743,7 +863,7 @@ def xishuashua(d:uiautomator2.Device):
     # if d.app_current()['package']=='com.ximalaya.ting.android':
     #     d.swipe_ext('right',0.8)
     #     time.sleep(2)
-    #     print('喜马拉雅正在运行')
+    #     logger.log('喜马拉雅正在运行')
     #
     # d.swipe_ext('up',0.5)
     # time.sleep(2)
@@ -758,62 +878,62 @@ def xishuashua(d:uiautomator2.Device):
         try:
             hemajuchang(d) #河马剧场
         except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
+            logger.log('发生异常:'+str(e))
+            logger.log(screenshoter.capture_screen(d))
 
         try:
             fanqiechangting(d) #番茄畅听
         except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
+            logger.log('发生异常:'+str(e))
+            logger.log(screenshoter.capture_screen(d))
 
         try:
             xiguashipin(d)  # 西瓜视频
         except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
+            logger.log('发生异常:'+str(e))
+            logger.log(screenshoter.capture_screen(d))
 
         try:
             baidujisuban(d) #百度极速版
         except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
+            logger.log('发生异常:'+str(e))
+            logger.log(screenshoter.capture_screen(d))
 
         try:
             kuaisoujisuban(d) #快手极速版
         except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
+            logger.log('发生异常:'+str(e))
+            logger.log(screenshoter.capture_screen(d))
 
         try:
             fanqiemianfeixiaosuo(d) #番茄免费小说
         except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
+            logger.log('发生异常:'+str(e))
+            logger.log(screenshoter.capture_screen(d))
 
         try:
             douyinjisuban(d) #抖音极速版
         except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
+            logger.log('发生异常:'+str(e))
+            logger.log(screenshoter.capture_screen(d))
 
         try:
             qisuiyinyue(d) # 汽水音乐
         except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
+            logger.log('发生异常:'+str(e))
+            logger.log(screenshoter.capture_screen(d))
 
         try:
             hongguoduanju(d) #红果短剧
         except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
+            logger.log('发生异常:'+str(e))
+            logger.log(screenshoter.capture_screen(d))
 
         try:
             wukongliulanqi(d) #悟空浏览器
         except Exception as e:
-            print('发生异常:'+str(e))
-            print(screenshoter.capture_screen(d))
+            logger.log('发生异常:'+str(e))
+            logger.log(screenshoter.capture_screen(d))
 
         d.app_stop_all()
         time.sleep(2)
@@ -835,10 +955,10 @@ def force_shutdown_windows():
             text=True
         )
     except subprocess.CalledProcessError as e:
-        print(f"关机命令执行失败：{e.stderr}")
+        logger.log(f"关机命令执行失败：{e.stderr}")
         sys.exit(1)
     except Exception as e:
-        print(f"未知错误：{str(e)}")
+        logger.log(f"未知错误：{str(e)}")
         sys.exit(1)
 
 
@@ -848,7 +968,7 @@ if __name__ == "__main__":
     # target_time = datetime.datetime.strptime("2025-12-1 03:00:00", "%Y-%m-%d %H:%M:%S")
     # now = datetime.datetime.now()
     # time_diff = (target_time - now).total_seconds()
-    # print(f"距离任务执行还有：{time_diff:.0f}秒（{time_diff/3600:.1f}小时）")
+    # logger.log(f"距离任务执行还有：{time_diff:.0f}秒（{time_diff/3600:.1f}小时）")
     # time.sleep(time_diff)
 
     logger.log('启动脚本！')
@@ -867,117 +987,9 @@ if __name__ == "__main__":
         t.join()
 
     # d = u2.connect()
-    # print(d.info)
+    # logger.log(d.info)
 
-    #河马剧场  到赚钱界面  连续签到得金币
-    #d.click(0.498, 0.668) #立即签到按钮
-    #d.click(0.498,0.668) #看小视频最高再领xxx金币 按钮
-    #d.click(0.858, 0.205) #弹窗左上角关闭图标
-
-    #番茄畅听 一进界面 昨日收益弹窗  昨日受益超过99%用户弹窗
-    #d(text='放弃奖励，不再提醒').click() #放弃奖励不再提醒
-    #去 领现金 的界面 -> 今日签到领
-    #d.click(0.265, 0.641) #立即签到 按钮 过两秒以后再点关闭弹窗按钮
-    #d.click(0.487, 0.756) #弹窗关闭按钮
-
-    #西瓜视频
-    #赚界面 弹窗 评价并签到
-    #d.click(0.487, 0.599) #评价并签到 按钮
-    #过两秒
-    #d.click(0.498, 0.732) #关闭弹窗按钮
-    #弹窗 获得开宝箱奖励
-    #d.click(0.48, 0.698) #开心收下按钮
-    #弹窗 恭喜获得预约金币
-    #d.click(0.487, 0.801) #关闭弹窗
-
-    #汽水音乐
-    #开通会员畅听千万曲库 弹窗 一打开软件就有
-    #d.click(0.897, 0.4) #关闭弹窗
-    #恭喜获得VIP听歌时常
-    # 狠心离开位置
-    #d.click(0.494, 0.642)
-    # 去到福利界面 弹出明日签到+
-    #d.click(0.494, 0.692) #关闭弹窗
-
-    #快手极速版
-    # if d(text='邀请2个新用户必得').exists:
-    #     d.click(0.491, 0.701)
-    #到 去赚钱界面 弹窗 连续签到
-    #d.click(0.236, 0.665) #直接领金币按钮
-    # 弹出去看视频弹窗
-    #d.click(0.915, 0.157) #关闭弹窗
-
-    #红果免费短剧
-    #到赚钱界面 弹窗 今日签到领
-    #d.click(0.491, 0.636) #立即签到 按钮
-    #两秒以后
-    #d.click(0.494, 0.761) #关闭弹窗
-
-    #抖音极速版
-    #到赚钱按钮
-    # 弹窗 连续签到赚大钱
-    #d.click(0.484, 0.605) #签到领
-    # 两秒以后
-    #d.click(0.798, 0.331) #关闭弹窗位置
-    # 两秒以后
-    # 立即签到领 弹窗
-    #d.click(0.491, 0.889) #立即签到领 按钮位置
-    #d.click(0.929, 0.288) #关闭按钮
-    #马上打开 弹窗
-    #d.click(0.505, 0.828)#关闭弹窗
-
-    #悟空浏览器
-    # 去赚钱界面
-    # 今日签到领弹窗
-    # d.click(0.303, 0.698) #立即领取按钮
-    # 两秒以后
-    # d.click(0.869, 0.312) #关闭弹窗
-
-    #番茄免费小说
-    #一进软件 就有 立即领取弹窗
-    # d.click(0.494, 0.631) #立即领取 按钮
-    # time.sleep(2)
-    # d.click(0.491, 0.777) #关闭弹窗
-
-    #今日头条极速版
-    #一进软件 弹窗 恭喜获得惊喜奖励
-    #d.click(0.491, 0.729) #关闭弹窗
-    #受益快报 弹窗
-    #d(text='不再提示').click() #点击不再提示
-    #恭喜获得新人福利弹窗
-    #d.click(0.491, 0.759) #关闭弹窗
-    #到任务界面
-    #恭喜你获得弹窗
-    #d.click(0.487, 0.588) #点击立即领取按钮
-    #d.click(0.498, 0.613) #点击开心收下按钮
-    #d.click(0.049, 0.073) #天天预约领金币界面 ，左上角返回
-    #恭喜你获得弹窗
-    #d.click(0.491, 0.721) #关闭弹窗
-    #每日答题赚金币弹窗
-    #d.click(0.498, 0.758) #关闭弹窗
-
-    #今日头条
-    #一进软件 弹窗 恭喜获得惊喜奖励
-    #d.click(0.491, 0.729) #关闭弹窗
-    #任务界面 今日签到得
-    #d.click(0.314, 0.637) #直接领取按钮
-    #d.click(0.491, 0.759) #关闭弹窗
-    #立即预约弹窗
-    #d.click(0.491, 0.777) #关闭弹窗
-    #恭喜获得惊喜奖励
-    #d.click(0.498, 0.762) #关闭弹窗
-
-    #百度极速版
-    #一进软件 去阅读赚赚更多
-    #d.click(0.773, 0.415) #关闭弹窗
-    #专属现金福利弹窗
-    #d.click(0.848, 0.267) #关闭弹窗
-    #直接领取弹窗
-    #d.click(0.282, 0.724) #直接领取 按钮
-    #d.click(0.855, 0.179) #关闭弹窗
-
-
-    print('脚本执行完成！')
+    logger.log('脚本执行完成！')
     #force_shutdown_windows()
 
 
