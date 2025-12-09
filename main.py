@@ -195,13 +195,13 @@ def qisuiyinyue(d:uiautomator2.Device):
 
         # 汽水音乐
         # 开通会员畅听千万曲库 弹窗 一打开软件就有
-        if video_swipter.has_popup('开通会员畅听千万曲库'):
+        if video_swipter.has_popup(d,'开通会员畅听千万曲库'):
             d.click(0.897, 0.4) #关闭弹窗
             time.sleep(2)
             logger.log('开通会员畅听千万曲库')
 
         # 恭喜获得VIP听歌时常
-        if video_swipter.has_popup('恭喜获得VIP听歌时长'):
+        if video_swipter.has_popup(d,'恭喜获得VIP听歌时长'):
             d.click(0.494, 0.642) # 狠心离开位置
             time.sleep(2)
             logger.log('恭喜获得VIP听歌时长')
@@ -216,7 +216,7 @@ def qisuiyinyue(d:uiautomator2.Device):
         time.sleep(5)
 
 
-        for i in range(3):
+        for i in range(1):
             qisuiyinyue_kanguanggao(d)
 
         qisuiyinyue_qufanka(d)
@@ -255,7 +255,7 @@ def hongguoduanju_kuanguanggao(d:uiautomator2.Device):
     if video_swipter.claim_treasure_box(d, '开宝箱得金币'):
         time.sleep(3)
         logger.log('点击宝箱')
-        if video_swipter.has_popup(d, '点击看视频最高再领'):
+        if video_swipter.has_popup(d,'点击看视频最高再领'):
             d.click(0.494, 0.608)
             time.sleep(2)
             flag = True
@@ -271,7 +271,7 @@ def hongguoduanju_kuanguanggao(d:uiautomator2.Device):
     flag_count = 0
     while flag:
 
-        while not video_swipter.has_popup(d, '领取成功'):
+        while not video_swipter.has_popup(d,'领取成功'):
             logger.log('看广告中...')
             time.sleep(10)
 
@@ -279,7 +279,7 @@ def hongguoduanju_kuanguanggao(d:uiautomator2.Device):
         time.sleep(2)
         logger.log('点击 右上角 领取成功标签')
 
-        if video_swipter.has_popup(d, '领取奖励'):
+        if video_swipter.has_popup(d,'领取奖励'):
             d.click(0.48, 0.549)
             time.sleep(2)
             logger.log('点击 领取奖励按钮')
@@ -323,7 +323,7 @@ def kuaisoujisuban_kanguanggao(d:uiautomator2.Device):
     logger.log('进入到赚钱界面')
 
     # 到 去赚钱界面 弹窗 连续签到
-    if video_swipter.has_popup('连续签到'):
+    if video_swipter.has_popup(d,'连续签到'):
         d.click(0.236, 0.665) #直接领金币按钮
         time.sleep(3)
         logger.log('点击 直接领金币')
@@ -355,7 +355,7 @@ def kuaisoujisuban_kanguanggao(d:uiautomator2.Device):
         logger.log('点击 看广告得金币')
 
         if d(text="去微信邀请好友").exists():
-            d.click((0.922, 0.173))
+            d.click(0.922, 0.173)
             time.sleep(2)
             logger.log('点掉 去微信邀请好友')
 
@@ -484,13 +484,14 @@ def hemajuchang(d:uiautomator2.Device):
         # d.click(0.498,0.668) #看小视频最高再领xxx金币 按钮
         # d.click(0.858, 0.205) #弹窗左上角关闭图标
 
-        hemajuchang_kanshipin(d,20)
+        hemajuchang_kanshipin(d,50)
 
 
         video_swipter.close_app(d, 'com.dz.hmjc')
 
 ####----------------------------------------番茄畅听-----------------------------------------------
 def fanqiechangting_kanshipin(d:uiautomator2.Device,max_count:int):
+
 
     d(text='短剧').click()
     logger.log('进入短剧看视频')
@@ -512,19 +513,24 @@ def fanqiechangting_kanshipin(d:uiautomator2.Device,max_count:int):
 def fanqiechangting(d:uiautomator2.Device):
     if video_swipter.start_app(d, 'com.xs.fm'):  # 番茄畅听
 
-        time.sleep(10)
+        time.sleep(15)
+
+        if video_swipter.has_popup(d,'番茄畅听用户专属福利'):
+            d.click(0.497, 0.741)  # 放弃奖励不再提醒
+            time.sleep(2)
+            logger.log('点掉 番茄畅听用户专属福利')
 
         # 番茄畅听 一进界面 昨日收益弹窗  昨日受益超过99%用户弹窗
-        if video_swipter.has_popup('昨日受益超过'):
-            d(text='放弃奖励，不再提醒').click() #放弃奖励不再提醒
+        if video_swipter.has_popup(d,'昨日收益超过'):
+            d(text='放弃奖励，不再提醒').click()  # 放弃奖励不再提醒
             time.sleep(2)
-            logger.log('点掉 昨日受益超过99%用户弹窗')
+            logger.log('点掉 昨日收益超过99%用户弹窗')
 
         # 去 领现金 的界面 -> 今日签到领
         # d.click(0.265, 0.641) #立即签到 按钮 过两秒以后再点关闭弹窗按钮
         # d.click(0.487, 0.756) #弹窗关闭按钮
 
-        fanqiechangting_kanshipin(d,30)
+        fanqiechangting_kanshipin(d,50)
 
 
         video_swipter.close_app(d, 'com.xs.fm')
@@ -566,7 +572,7 @@ def xiguashipin(d:uiautomator2.Device):
         # 弹窗 恭喜获得预约金币
         # d.click(0.487, 0.801) #关闭弹窗
 
-        xiguashipin_kanshipin(d,30)
+        xiguashipin_kanshipin(d,50)
 
 
         video_swipter.close_app(d, 'com.ss.android.article.video')
@@ -666,20 +672,20 @@ def douyinjisuban(d:uiautomator2.Device):
         # 抖音极速版
         # 到赚钱按钮
         # 弹窗 连续签到赚大钱
-        if video_swipter.has_popup('连续签到赚大钱'):
+        if video_swipter.has_popup(d,'连续签到赚大钱'):
             d.click(0.484, 0.605)  # 签到领
             time.sleep(2)
             d.click(0.798, 0.331)  # 关闭弹窗位置
             time.sleep(2)
             logger.log('连续签到赚大钱')
 
-        if video_swipter.has_popup('立即签到领'):
+        if video_swipter.has_popup(d,'立即签到领'):
             d.click(0.491, 0.889) #立即签到领 按钮位置
             time.sleep(2)
             d.click(0.929, 0.288)  # 关闭按钮
             logger.log('立即签到领')
 
-        if video_swipter.has_popup('马上打开'):
+        if video_swipter.has_popup(d,'马上打开'):
             d.click(0.505, 0.828)  # 关闭弹窗
             time.sleep(2)
             logger.log('马上打开')
@@ -737,7 +743,7 @@ def wukongliulanqi(d:uiautomator2.Device):
         # 两秒以后
         # d.click(0.869, 0.312) #关闭弹窗
 
-        wukongliulanqi_kushipin(d,50)
+        wukongliulanqi_kushipin(d,20)
 
 
         video_swipter.close_app(d, 'com.cat.readall')
@@ -776,7 +782,7 @@ def fanqiemianfeixiaosuo(d:uiautomator2.Device):
         time.sleep(10)
         # 番茄免费小说
         # 一进软件 就有 立即领取弹窗
-        if video_swipter.has_popup('立即领取'):
+        if video_swipter.has_popup(d,'立即领取'):
             d.click(0.494, 0.631) #立即领取 按钮
             time.sleep(3)
             logger.log('立即领取')
@@ -829,19 +835,19 @@ def baidujisuban(d:uiautomator2.Device):
 
         # 百度极速版
         # 一进软件 去阅读赚赚更多
-        if video_swipter.has_popup('去阅读赚赚更多'):
+        if video_swipter.has_popup(d,'去阅读赚赚更多'):
             d.click(0.773, 0.415) #关闭弹窗
             time.sleep(2)
             logger.log('点掉 去阅读赚赚更多')
 
         # 专属现金福利弹窗
-        if video_swipter.has_popup('专属现金福'):
+        if video_swipter.has_popup(d,'专属现金福'):
             d.click(0.848, 0.267) #关闭弹窗
             time.sleep(2)
             logger.log('点掉 专属现金福')
 
         # 直接领取弹窗
-        if video_swipter.has_popup('直接领取'):
+        if video_swipter.has_popup(d,'直接领取'):
             d.click(0.282, 0.724) #直接领取 按钮
             time.sleep(2)
             d.click(0.855, 0.179)  # 关闭弹窗
@@ -868,10 +874,10 @@ def xishuashua(d:uiautomator2.Device):
     # d.swipe_ext('up',0.5)
     # time.sleep(2)
     #
-    # d.press('volume_up')
-    # time.sleep(2)
-    # d.press("volume_mute") #静音
-    # time.sleep(4)
+    d.press('volume_up')
+    time.sleep(2)
+    d.press("volume_mute") #静音
+    time.sleep(4)
 
     for i in range(2):
 
